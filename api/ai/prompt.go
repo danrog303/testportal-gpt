@@ -15,7 +15,7 @@ Your answer must be written in the same language in which the question was asked
 {{- end }}
 
 {{- if eq .QuestionType "open-ended-long" }} 
-Your answer should be comprehensive and detailed. 
+Your answer should should be moderately detailed.
 {{- else if eq .QuestionType "open-ended-short" }} 
 Your answer should be as short and concise as possible.
 {{- end }}

@@ -58,14 +58,18 @@ func GetAnswerForQuestion(question *models.Question, apiKey string, model models
 	}
 
 	if len(responseData.Choices) > 0 {
-		answer, _ := models.NewQuestionAnswer(responseData.Choices[0].Message.Content)
+		result, _ = models.NewQuestionAnswer(responseData.Choices[0].Message.Content)
 		if question.QuestionType == models.QuestionClosedEndedSingleChoice {
-			answer.AnswerContent = util.StripNonDigits(answer.AnswerContent)
+			result.AnswerContent = util.StripNonDigits(result.AnswerContent)
 		} else if question.QuestionType == models.QuestionClosedEndedMultipleChoice {
-			answer.AnswerContent = util.StripNonDigitsAndCommas(answer.AnswerContent)
+			result.AnswerContent = util.StripNonDigitsAndCommas(result.AnswerContent)
 		}
 
-		return answer, nil
+		if len(result.AnswerContent) == 0 {
+			return result, errors.New("interal error; GPT API responded with invalid content")
+		}
+
+		return result, nil
 	} else {
 		return result, errors.New("no response text found in the API response")
 	}

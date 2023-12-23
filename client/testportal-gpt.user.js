@@ -103,6 +103,10 @@
         currentQuestionResponse.then(currentQuestionAnswer => {
             setLoading(false);
 
+            if (currentQuestionAnswer.hasOwnProperty("error")) {
+                throw {msg: currentQuestionAnswer.error};
+            }
+
             if (currentQuestion["question-type"] === "open-ended-long") {
                 const answerFrame = document.getElementById("givenAnswer_ifr");
                 const answerFrameDoc = answerFrame.contentDocument ? answerFrame.contentDocument : answerFrame.contentWindow.document;
@@ -121,7 +125,8 @@
                 }
             }
         }).catch(error => {
-            const errorText = error?.error ?? "Some error happened during the API communication...";
+            console.error(error);
+            const errorText = error?.msg ?? "Some error happened during the API communication...";
             Toastify({
                 text: errorText,
                 duration: 5000,
