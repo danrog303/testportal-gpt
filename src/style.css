@@ -1,0 +1,74 @@
+* {
+    font-family: Calibri, sans-serif;
+    accent-color: #04673e;
+    vertical-align: middle;
+}
+
+a {
+    color: inherit;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #008d54;
+}
+
+textarea {
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.popup-container {
+    font-size: 110%;
+    width: 400px;
+}
+
+.popup-container input,
+.popup-container textarea,
+.popup-container select {
+    margin-top: 5px;
+}
+
+.popup-container input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.popup-container hr {
+    margin-top: 13px;
+    margin-bottom: 13px;
+}
+
+.popup-test-key-btn {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.popup-field-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 110%;
+    color: #04673e;
+}
+
+.popup-successful-key-validation,
+.popup-failed-key-validation {
+    font-size: 90%;
+    margin-top: 10px;
+}
+
+.popup-successful-key-validation {
+    color: #008d54;
+}
+
+.popup-failed-key-validation {
+    color: #d9534f;
+}
