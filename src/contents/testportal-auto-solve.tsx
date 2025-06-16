@@ -134,7 +134,11 @@ const TestportalAutoSolve = () => {
 const isExamSolvingSubpage = document.querySelector(".question_header_content") !== null;
 if (isExamSolvingSubpage) {
     const mountNode = document.createElement("span");
-    document.querySelectorAll(".navigation_buttons")[0].appendChild(mountNode)
+    const anchorPoint1 = document.querySelectorAll(".navigation_buttons")[0];
+    const anchorPoint2 = document.querySelectorAll(".test_button_box.section")[0];
+    const anchorPoint = anchorPoint1 || anchorPoint2;
+    anchorPoint.appendChild(mountNode)
     const root = createRoot(mountNode)
     root.render(<TestportalAutoSolve />);
 }
+
