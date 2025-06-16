@@ -1,4 +1,4 @@
-import type { Answer, ClosedQuestion, Question, QuestionType } from "~models/questions"
+import type { Answer, ClosedQuestion, Question } from "~models/questions"
 import usePluginConfig from "~hooks/use-plugin-config"
 import useOpenAI from "~hooks/use-openai"
 

@@ -5,7 +5,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import usePluginConfig from "~hooks/use-plugin-config";
 import useQuestionSolver from "~hooks/use-question-solver";
 import type { Answer, ClosedQuestionAnswer, OpenQuestionAnswer, Question, QuestionType } from "~models/questions";
-import { MSG_GLOBAL_STATE_CHANGE } from "~hooks/use-global-synced-state";
 
 export const config: PlasmoCSConfig = {
     matches: [

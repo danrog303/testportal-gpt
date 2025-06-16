@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Storage } from "@plasmohq/storage"
 import useAsyncEffect from "use-async-effect"
 import { EventEmitter } from "events"
-import { sendToContentScript } from "@plasmohq/messaging";
 import useBrowserEnv, { BrowserEnvType } from "~hooks/use-browser-env";
-import { debounce } from "lodash";
 
 export const MSG_GLOBAL_STATE_CHANGE = "testportal-global-state-change";
 
