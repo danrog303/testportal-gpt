@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3730ecc2-d419-4c9e-8384-1cc37ebb66dd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/contents/testportal-auto-solve.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/contents/testportal-auto-solve.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/use-global-synced-state.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-global-synced-state.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/use-question-solver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-question-solver.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

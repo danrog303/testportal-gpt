@@ -2,15 +2,19 @@
 > 🛠️ Auto-solver browser extension for TestPortal powered by ChatGPT.
 
 ## ✨ Project summary
-Testportal (https://testportal.net) is a popular site that allows users to create tests containing closed-ended and open-ended questions. The **testportal-gpt** project provides a browser plugin that enables automatic exercise solving using artificial intelligence.
+TestPortal (https://testportal.net) is a popular site that allows users to create tests containing closed-ended and open-ended questions. The **testportal-gpt** project provides a browser plugin that enables automatic exercise solving using artificial intelligence.
+
+## 🪐 Supported browsers
+- **Chrome**: Extension available in [Chrome Web Store](https://chromewebstore.google.com/detail/testportal-gpt/cfebdnpaooilklaiemggkhnbakafohel).
+- **Opera, Brave, Edge**: you can install the extension from the Chrome Web Store, it should work without issues.
+- **Firefox**: coming soon.
 
 ## ❓ How to use?
-1) Install the extension from the Chrome Web Store (link coming soon) or build it from source.
+1) Install the extension from the Chrome Web Store ([link here](https://chromewebstore.google.com/detail/testportal-gpt/cfebdnpaooilklaiemggkhnbakafohel)).
 2) Open and start your TestPortal exam.
 3) At the bottom of the question, you will see the "Auto-solve" button.
 4) Click it and this plugin will automatically solve the question for you!
-5) Disclaimer: this extension requires providing own OpenAI API key in order to work; click 'Testportal GPT' icon on your browser status bar to access the extension configuration.
-
+5) Disclaimer: this extension requires providing own OpenAI API key in order to work; click 'TestPortal GPT' icon on your browser status bar to access the extension configuration.
 
 ## 💥 Features
 - Supports all kinds of questions (open questions, single choice, multiple choice).
@@ -21,7 +25,7 @@ Testportal (https://testportal.net) is a popular site that allows users to creat
 - Configuring additional context for OpenAI API.
 
 ## 🔨 How to build?
-TestportalGPT is a Plasmo website plugin, which means it can be built using the Plasmo CLI. To build the plugin, you need to have Node.js and pnpm installed on your machine.
+TestPortal GPT is a Plasmo website plugin, which means it can be built using the Plasmo CLI. To build the plugin, you need to have Node.js and pnpm installed on your machine.
 Currently only the Chrome browser is supported, Firefox support is coming soon.
 ```bash
 $ pnpm install
