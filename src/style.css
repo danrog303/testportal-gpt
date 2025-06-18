@@ -5,6 +5,11 @@
 }
 
 a {
+    vertical-align: revert;
+    font-weight: bold;
+}
+
+a {
     color: inherit;
 }
 
@@ -26,6 +31,10 @@ textarea {
 .popup-container {
     font-size: 110%;
     width: 400px;
+}
+
+.popup-buy-coffee-prompt {
+    margin-top: 8px;
 }
 
 .popup-container input,

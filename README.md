@@ -32,6 +32,11 @@ $ pnpm install
 $ pnpm build
 ```
 
+## 💵 Support the project
+If you like the project, please consider supporting it by starring the repository on GitHub or rating the extension on Chrome Web Store. This will help increase its visibility and encourage further development.
+
+You can also support the project by donating via [Buycoffee.to](https://buycoffee.to/danielrogowski), which I would greatly appreciate. Your support will help me continue to improve the extension and add new features.
+
 ## 📋 Version v1
 The current version of the extension is v2, which is a complete rewrite of the extension. 
 The previous version (v1) was based on the Tampermonkey script and had limited functionality.

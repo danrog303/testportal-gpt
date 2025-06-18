@@ -25,12 +25,16 @@ function IndexPopup() {
     }
 
     return <div className={"popup-container"}>
-        <h1>Welcome to TestPortalGPT!</h1>
+        <h1>TestPortal GPT</h1>
         <p>
-            Welcome to the plugin made by Daniel Rogowski.
-            When you enter any Testportal test, you should see "Autosolve" button at the bottom of the question.
+            Welcome to TestPortal GPT.
+            When you enter any TestPortal test, you should see "Auto-solve" button at the bottom of the question.
             Click it to let the plugin generate an answer for you.
         </p>
+        <p className={"popup-buy-coffee-prompt"}>
+            If you like the extension, please consider supporting me by buying me a virtual coffee at <a href={"https://buycoffee.to/danielrogowski"} target={"_blank"} rel={"noopener noreferrer"}>Buycoffee.to</a>.
+        </p>
+
         <br />
 
         <div>
