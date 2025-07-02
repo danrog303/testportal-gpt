@@ -46,5 +46,7 @@ To access the old version, you can find it in the [release-v1](https://github.co
 ![Screenshot 1](https://github.com/user-attachments/assets/047bdc1b-92c2-4398-8802-2d9774d0390b)
 
 ## 🎓 Disclaimer
-The plugin is intended to be used for learning purposes only. The owner of the repository is not responsible for any consequences caused by improper use of the plugin (e.g. at school)
+The plugin is intended to be used for learning purposes only. The owner of the repository is not responsible for any consequences caused by improper use of the plugin (e.g. at school).
+The plugin is not affiliated with TestPortal in any way, it is an independent project created by a third-party developer.
+
 
