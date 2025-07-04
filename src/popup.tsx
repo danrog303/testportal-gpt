@@ -1,8 +1,16 @@
+
+
+
 import "style.css";
+
 import { useState } from "react";
-import usePluginConfig from "~hooks/use-plugin-config";
-import useOpenAI from "~hooks/use-openai"
+
+import useOpenAI from "~hooks/use-openai";
+import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import { GptModel } from "~models/openai";
+
+
+
 
 
 function IndexPopup() {
@@ -109,16 +117,33 @@ function IndexPopup() {
         <hr/>
 
         <div>
-            <label className={"popup-field-label"}>Stealth mode:</label>
+            <label className={"popup-field-label"}>Auto-solve button visibility:</label>
             <p>
-                When enabled, the "Autosolve" button will be barely visible so that it does not attract attention.
+                When set to "Barely visible", auto-solve button will be given 95% transparency so that it does not
+                attract attention. YYou can also hide the button completely by setting this option to "Invisible".
             </p>
-            <label>
-                <input type={"checkbox"}
-                       checked={pluginConfig.stealthMode}
-                       onChange={e => pluginConfig.setStealthMode(e.target.checked)} />
-                Enable
-            </label>
+            <select defaultValue={pluginConfig.btnVisibility}
+                    onChange={e => pluginConfig.setBtnVisibility(e.target.value as AutoSolveButtonVisibility)}>
+                <option value={AutoSolveButtonVisibility.VISIBLE}
+                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.VISIBLE}>
+                    Visible
+                </option>
+
+                <option value={AutoSolveButtonVisibility.BARELY_VISIBLE}
+                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE}>
+                    Barely visible
+                </option>
+
+                <option value={AutoSolveButtonVisibility.NOT_VISIBLE}
+                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE}>
+                    Invisible
+                </option>
+            </select>
+            {pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE && <p className="popup-visibility-warning">
+                Warning: Now auto-solve button will be completely invisible! You can still click it, but it won't be visible.
+                If you don't know where the button normally is, it is recommended to switch this option to
+                "Barely visible" or "visible".
+            </p>}
         </div>
     </div>;
 }

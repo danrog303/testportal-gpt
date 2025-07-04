@@ -1,8 +1,9 @@
 import type { PlasmoCSConfig } from "plasmo";
 import React, { useState, type CSSProperties, type MouseEvent } from "react";
 import { createRoot } from "react-dom/client";
-import { toast, ToastContainer } from 'react-toastify';
-import usePluginConfig from "~hooks/use-plugin-config";
+import { toast, ToastContainer } from "react-toastify";
+
+import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import useQuestionSolver from "~hooks/use-question-solver";
 import type { Answer, ClosedQuestionAnswer, OpenQuestionAnswer, Question, QuestionType } from "~models/questions";
 
@@ -11,7 +12,7 @@ export const config: PlasmoCSConfig = {
         "https://testportal.pl/*",
         "https://testportal.net/*",
         "https://*.testportal.pl/*",
-        "https://*.testportal.net/*",
+        "https://*.testportal.net/*"
     ]
 };
 
@@ -112,8 +113,10 @@ const TestportalAutoSolve = () => {
     }
 
     let stealthStyle: CSSProperties = {};
-    if (pluginConfig.stealthMode) {
+    if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE) {
         stealthStyle = {opacity: 0.05};
+    } else if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE) {
+        stealthStyle = {opacity: 0};
     }
 
     return <>
@@ -140,4 +143,3 @@ if (isExamSolvingSubpage) {
     const root = createRoot(mountNode)
     root.render(<TestportalAutoSolve />);
 }
-

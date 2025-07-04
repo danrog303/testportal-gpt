@@ -6,7 +6,13 @@ export enum PluginConfigKeys {
     OpenAIModel = "testportal-gpt-api-model",
     TestPortalAntiAntiTampering = "testportal-gpt-anti-anti-tampering",
     AIAdditionalContext = "testportal-gpt-additional-context",
-    StealthMode = "testportal-gpt-stealth-mode"
+    AutoSolveButtonVisibility = "testportal-gpt-btn-visibilitiy"
+}
+
+export enum AutoSolveButtonVisibility {
+    VISIBLE = "visible",
+    BARELY_VISIBLE = "barely_visible",
+    NOT_VISIBLE = "not_visible"
 }
 
 export default function usePluginConfig() {
@@ -14,7 +20,7 @@ export default function usePluginConfig() {
     const [apiModel, setApiModel] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIModel, GptModel.GPT_3_5_TURBO);
     const [antiAntiTampering, setAntiAntiTampering] = useGlobalSyncedState<boolean>(PluginConfigKeys.TestPortalAntiAntiTampering, false);
     const [additionalContext, setAdditionalContext] = useGlobalSyncedState<string>(PluginConfigKeys.AIAdditionalContext, "");
-    const [stealthMode, setStealthMode] = useGlobalSyncedState(PluginConfigKeys.StealthMode, false);
+    const [btnVisibility, setBtnVisibility] = useGlobalSyncedState(PluginConfigKeys.AutoSolveButtonVisibility, AutoSolveButtonVisibility.VISIBLE);
 
     return {
         pluginConfig: {
@@ -26,8 +32,8 @@ export default function usePluginConfig() {
             setAntiAntiTampering,
             additionalContext,
             setAdditionalContext,
-            stealthMode,
-            setStealthMode
+            btnVisibility,
+            setBtnVisibility
         }
     }
 }
