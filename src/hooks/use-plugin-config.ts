@@ -17,7 +17,7 @@ export enum AutoSolveButtonVisibility {
 
 export default function usePluginConfig() {
     const [apiKey, setApiKey] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIApiKey, "");
-    const [apiModel, setApiModel] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIModel, GptModel.GPT_3_5_TURBO);
+    const [apiModel, setApiModel] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIModel, GptModel.GPT_5);
     const [antiAntiTampering, setAntiAntiTampering] = useGlobalSyncedState<boolean>(PluginConfigKeys.TestPortalAntiAntiTampering, false);
     const [additionalContext, setAdditionalContext] = useGlobalSyncedState<string>(PluginConfigKeys.AIAdditionalContext, "");
     const [btnVisibility, setBtnVisibility] = useGlobalSyncedState(PluginConfigKeys.AutoSolveButtonVisibility, AutoSolveButtonVisibility.VISIBLE);

@@ -34,7 +34,7 @@ function useOpenAI() {
 
         if (responseJson.error) {
             if (responseJson.error.message.includes("Invalid image URL")) {
-                throw new Error("Model could not process image. " +
+                throw new Error("Model could not process the image. " +
                     "Make sure you've chosen a model that supports images, like gpt-4o. " +
                     "Simple text models like gpt-3.5-turbo do not support images.");
             }

@@ -1,6 +1,3 @@
-
-
-
 import "style.css";
 
 import { useState } from "react";
@@ -9,26 +6,26 @@ import useOpenAI from "~hooks/use-openai";
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import { GptModel } from "~models/openai";
 
-
-
-
-
 function IndexPopup() {
     const { pluginConfig } = usePluginConfig();
     const { requestAI } = useOpenAI();
 
     const [ keyValid, setKeyValid ] = useState<boolean | null>(null);
+    const [ keyValidationInProgress, setKeyValidationInProgress ] = useState<boolean>(false);
     const [ keyValidationResponse, setKeyValidationResponse ] = useState<string>("");
 
     async function onTestApiKey() {
         const prompt = "Respond with OK";
+        setKeyValidationInProgress(true);
         try {
             const response = await requestAI(prompt);
             setKeyValid(true);
             setKeyValidationResponse(response);
+            setKeyValidationInProgress(false);
         } catch (error) {
             setKeyValid(false);
             setKeyValidationResponse(error instanceof Error ? error.message : error.toString());
+            setKeyValidationInProgress(false);
         }
     }
 
@@ -58,6 +55,10 @@ function IndexPopup() {
             <input type={"text"} defaultValue={pluginConfig.apiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
                    placeholder={"sk-..."} />
             <button className={"popup-test-key-btn"} onClick={onTestApiKey}>Test API key</button>
+
+            {keyValidationInProgress && <p className={"popup-key-validation-in-progress"}>
+                Please wait, API key validation in progress...
+            </p>}
 
             {keyValid === true && <p className={"popup-successful-key-validation"}>
                 API key is valid! Response: {keyValidationResponse}.
@@ -120,7 +121,7 @@ function IndexPopup() {
             <label className={"popup-field-label"}>Auto-solve button visibility:</label>
             <p>
                 When set to "Barely visible", auto-solve button will be given 95% transparency so that it does not
-                attract attention. YYou can also hide the button completely by setting this option to "Invisible".
+                attract attention. You can also hide the button completely by setting this option to "Invisible".
             </p>
             <select defaultValue={pluginConfig.btnVisibility}
                     onChange={e => pluginConfig.setBtnVisibility(e.target.value as AutoSolveButtonVisibility)}>

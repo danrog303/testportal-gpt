@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3730ecc2-d419-4c9e-8384-1cc37ebb66dd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/contents/moodle-auto-solve.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/use-openai.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-openai.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/use-plugin-config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-plugin-config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/openai.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/openai.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/popup.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +46,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Daniel Rogowski/Programowanie/testportal-gpt/assets&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Daniel Rogowski/Desktop/Porządek/deru/personal-homepage&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -82,6 +88,15 @@
       <workItem from="1749671899421" duration="3042000" />
       <workItem from="1749710432042" duration="4274000" />
       <workItem from="1750004934309" duration="39767000" />
+      <workItem from="1750434419455" duration="26000" />
+      <workItem from="1751478072687" duration="247000" />
+      <workItem from="1751575112553" duration="325000" />
+      <workItem from="1751608340912" duration="2461000" />
+      <workItem from="1760176183008" duration="1306000" />
+      <workItem from="1760883996560" duration="2392000" />
+      <workItem from="1760942533979" duration="5807000" />
+      <workItem from="1761026753064" duration="2428000" />
+      <workItem from="1761059496566" duration="1182000" />
     </task>
     <servers />
   </component>

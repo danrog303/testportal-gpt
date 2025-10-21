@@ -69,9 +69,14 @@ textarea {
 }
 
 .popup-successful-key-validation,
-.popup-failed-key-validation {
+.popup-failed-key-validation,
+.popup-key-validation-in-progress {
     font-size: 90%;
     margin-top: 10px;
+}
+
+.popup-key-validation-in-progress {
+    color: gray;
 }
 
 .popup-successful-key-validation {
