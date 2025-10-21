@@ -1,8 +1,8 @@
 {
   "name": "testportal-gpt",
-  "displayName": "TestPortal GPT",
-  "version": "2.4.0",
-  "description": "Solve TestPortal exams automatically using AI!",
+  "displayName": "TestPortal GPT (now with Moodle support!)",
+  "version": "2.5.0",
+  "description": "Solve TestPortal and Moodle exams automatically using AI!",
   "author": "Daniel Rogowski",
   "scripts": {
     "dev": "plasmo dev",
@@ -33,10 +33,7 @@
           "assets/anti-anti-tamper.js"
         ],
         "matches": [
-          "https://testportal.pl/*",
-          "https://testportal.net/*",
-          "https://*.testportal.pl/*",
-          "https://*.testportal.net/*"
+          "*://*/*"
         ]
       }
     ]

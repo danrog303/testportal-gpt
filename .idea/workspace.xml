@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3730ecc2-d419-4c9e-8384-1cc37ebb66dd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/contents/moodle-auto-solve.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/use-openai.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-openai.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/use-plugin-config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-plugin-config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/openai.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/openai.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/popup.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +89,7 @@
       <workItem from="1760883996560" duration="2392000" />
       <workItem from="1760942533979" duration="5807000" />
       <workItem from="1761026753064" duration="2428000" />
-      <workItem from="1761059496566" duration="1182000" />
+      <workItem from="1761059496566" duration="1948000" />
     </task>
     <servers />
   </component>
