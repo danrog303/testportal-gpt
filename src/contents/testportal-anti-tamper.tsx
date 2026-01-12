@@ -9,6 +9,8 @@ export const config: PlasmoCSConfig = {
         "https://testportal.net/*",
         "https://*.testportal.pl/*",
         "https://*.testportal.net/*",
+        "https://testportal.com/*",
+        "https://*.testportal.com/*"
     ]
 };
 

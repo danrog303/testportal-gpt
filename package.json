@@ -1,7 +1,7 @@
 {
   "name": "testportal-gpt",
   "displayName": "TestPortal GPT (now with Moodle support!)",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Solve TestPortal and Moodle exams automatically using AI!",
   "author": "Daniel Rogowski",
   "scripts": {
