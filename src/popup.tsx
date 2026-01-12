@@ -5,14 +5,15 @@ import { useState } from "react";
 import useOpenAI from "~hooks/use-openai";
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import { GptModel } from "~models/openai";
+import ContextManager from "~components/ContextManager";
 
 function IndexPopup() {
     const { pluginConfig } = usePluginConfig();
     const { requestAI } = useOpenAI();
 
-    const [ keyValid, setKeyValid ] = useState<boolean | null>(null);
-    const [ keyValidationInProgress, setKeyValidationInProgress ] = useState<boolean>(false);
-    const [ keyValidationResponse, setKeyValidationResponse ] = useState<string>("");
+    const [keyValid, setKeyValid] = useState<boolean | null>(null);
+    const [keyValidationInProgress, setKeyValidationInProgress] = useState<boolean>(false);
+    const [keyValidationResponse, setKeyValidationResponse] = useState<string>("");
 
     async function onTestApiKey() {
         const prompt = "Respond with OK";
@@ -53,7 +54,7 @@ function IndexPopup() {
             </p>
 
             <input type={"text"} defaultValue={pluginConfig.apiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
-                   placeholder={"sk-..."} />
+                placeholder={"sk-..."} />
             <button className={"popup-test-key-btn"} onClick={onTestApiKey}>Test API key</button>
 
             {keyValidationInProgress && <p className={"popup-key-validation-in-progress"}>
@@ -65,7 +66,7 @@ function IndexPopup() {
             </p>}
 
             {keyValid === false && <p className={"popup-failed-key-validation"}>
-              API key is invalid... Response: {keyValidationResponse}.
+                API key is invalid... Response: {keyValidationResponse}.
             </p>}
         </div>
 
@@ -86,7 +87,7 @@ function IndexPopup() {
             </select>
         </div>
 
-        <hr/>
+        <hr />
 
         <div>
             <label className={"popup-field-label"}>Anti-anti-tampering:</label>
@@ -96,26 +97,17 @@ function IndexPopup() {
             </p>
             <label>
                 <input type={"checkbox"}
-                       checked={pluginConfig.antiAntiTampering}
-                       onChange={e => pluginConfig.setAntiAntiTampering(e.target.checked)} />
+                    checked={pluginConfig.antiAntiTampering}
+                    onChange={e => pluginConfig.setAntiAntiTampering(e.target.checked)} />
                 Enable
             </label>
         </div>
 
-        <hr/>
+        <hr />
 
-        <div>
-            <label className={"popup-field-label"}>Additional context:</label>
-            <p>
-                Add here any additional context that you want to be included in the prompt sent to OpenAI API.
-                This can be useful for providing more information about the test or the subject.
-            </p>
-            <textarea defaultValue={pluginConfig.additionalContext}
-                      onChange={e => pluginConfig.setAdditionalContext(e.target.value)}>
-            </textarea>
-        </div>
+        <ContextManager />
 
-        <hr/>
+        <hr />
 
         <div>
             <label className={"popup-field-label"}>Auto-solve button visibility:</label>
@@ -124,19 +116,19 @@ function IndexPopup() {
                 attract attention. You can also hide the button completely by setting this option to "Invisible".
             </p>
             <select defaultValue={pluginConfig.btnVisibility}
-                    onChange={e => pluginConfig.setBtnVisibility(e.target.value as AutoSolveButtonVisibility)}>
+                onChange={e => pluginConfig.setBtnVisibility(e.target.value as AutoSolveButtonVisibility)}>
                 <option value={AutoSolveButtonVisibility.VISIBLE}
-                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.VISIBLE}>
+                    selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.VISIBLE}>
                     Visible
                 </option>
 
                 <option value={AutoSolveButtonVisibility.BARELY_VISIBLE}
-                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE}>
+                    selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE}>
                     Barely visible
                 </option>
 
                 <option value={AutoSolveButtonVisibility.NOT_VISIBLE}
-                        selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE}>
+                    selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE}>
                     Invisible
                 </option>
             </select>

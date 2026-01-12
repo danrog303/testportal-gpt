@@ -1,9 +1,7 @@
 import type { Answer, ClosedQuestion, Question } from "~models/questions"
-import usePluginConfig from "~hooks/use-plugin-config"
 import useOpenAI from "~hooks/use-openai"
 
 function useQuestionSolver() {
-    const { pluginConfig } = usePluginConfig();
     const { requestAI } = useOpenAI();
 
     function generatePrompt(question: Question): string {
@@ -40,11 +38,6 @@ function useQuestionSolver() {
             (question as ClosedQuestion).possibleAnswers.forEach((choice, index) => {
                 lines.push(`${index + 1}. ${choice}`);
             });
-        }
-
-        if (pluginConfig.additionalContext) {
-            lines.push("The additional context that might be useful for answering the question is:");
-            lines.push(pluginConfig.additionalContext);
         }
 
         if (question.imageAttachmentUrl) {
