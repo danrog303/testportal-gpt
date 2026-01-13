@@ -37,6 +37,9 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
         if (stored !== undefined) {
             setValue(stored);
             stateBus.set(key, stored);
+        } else {
+            // Initialize with default value if nothing in storage
+            stateBus.set(key, defaultValue);
         }
         isInitialized.current = true;
     }, [])
@@ -106,7 +109,8 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
     // Function to set the shared value in the global state bus.
     const setSharedValue: React.Dispatch<React.SetStateAction<T>> = (update) => {
         if (!isInitialized.current) return;
-        const newValue = typeof update === "function" ? (update as any)(stateBus.get<T>(key)) : update
+        const currentValue = stateBus.get<T>(key) ?? defaultValue;
+        const newValue = typeof update === "function" ? (update as any)(currentValue) : update
         stateBus.set(key, newValue)
     }
 
