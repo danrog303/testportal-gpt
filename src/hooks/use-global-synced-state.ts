@@ -44,57 +44,6 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
         isInitialized.current = true;
     }, [])
 
-    // Sync updates to plugin storage.
-    useAsyncEffect(async () => {
-        if (!isInitialized.current) return;
-        await pluginStorage.set(key, value)
-    }, [key, value])
-
-    // Send a notification to the content script when the value changes.
-    // This communication is only done for PopupScript->ContentScript.
-    // The message is debounced to avoid flooding the content script with messages.
-    // if (browserEnv === BrowserEnvType.PopupScript) {
-    //     useEffect(() => {
-    //         if (!isInitialized.current) return;
-    //
-    //         if (!initialMessageSkipped.current) {
-    //             initialMessageSkipped.current = true;
-    //             return
-    //         }
-    //
-    //         // Debounce the message sending to avoid too many messages in a short time.
-    //         // Use a longer debounce time for string values to avoid flooding the content script.
-    //         const debounceTime = typeof value === "string" ? 500 : 1;
-    //
-    //         const tabs = await chrome.tabs.query({
-    //             url: [
-    //                 "*://*.testportal.net/*",
-    //                 "*://*.testportal.pl/*"
-    //             ]
-    //         });
-    //
-    //         const timeoutId = setTimeout(async () => {
-    //             for (const tab of tabs) {
-    //                 if (tab.id != null) {
-    //                     try {
-    //                         await sendToContentScript({
-    //                             name: MSG_GLOBAL_STATE_CHANGE,
-    //                             tabId: tab.id,
-    //                             body: {
-    //                                 field: key,
-    //                                 newValue: value
-    //                             }
-    //                         })
-    //                     } catch (err) {
-    //                         console.warn(`Failed to send state upgrade to tabId=${tab.id}`, err)
-    //                     }
-    //                 }
-    //             }
-    //         }, debounceTime);
-    //         return () => clearTimeout(timeoutId);
-    //     }, [key, value]);
-    // }
-
     // Subscribe to changes in the global state bus for this key.
     useEffect(() => {
         const unsubscribe = stateBus.subscribe<T>(key, (newVal) => {
@@ -112,6 +61,7 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
         const currentValue = stateBus.get<T>(key) ?? defaultValue;
         const newValue = typeof update === "function" ? (update as any)(currentValue) : update
         stateBus.set(key, newValue)
+        pluginStorage.set(key, newValue)
     }
 
     return [value, setSharedValue]

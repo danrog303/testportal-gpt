@@ -194,7 +194,10 @@ export default function ContextManager() {
                             disabled={isUploading}
                             accept=".pdf,.txt,.md,.html,.docx,.doc,.csv,.json"
                         />
-                        {isUploading && <span className="upload-status">Uploading...</span>}
+                        {isUploading && <span className="upload-status">
+                            <div className="tiny-spinner" style={{ borderTopColor: "#333", border: "2px solid rgba(0,0,0,0.1)" }}></div>
+                            Uploading...
+                        </span>}
                     </div>
 
                     {uploadError && (
@@ -224,7 +227,10 @@ export default function ContextManager() {
                         onClick={handleDeleteContext}
                         disabled={isDeleting}
                     >
-                        {isDeleting ? "Deleting..." : "Delete context"}
+                        {isDeleting ? <>
+                            <div className="tiny-spinner"></div>
+                            Deleting...
+                        </> : "Delete context"}
                     </button>
                 </div>
             )}

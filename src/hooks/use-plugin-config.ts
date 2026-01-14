@@ -14,22 +14,35 @@ export enum AutoSolveButtonVisibility {
     NOT_VISIBLE = "not_visible"
 }
 
+export const PluginConfigKey = "testportal-gpt-config-v2";
+
+export interface PluginConfig {
+    apiKey: string;
+    apiModel: string;
+    antiAntiTampering: boolean;
+    btnVisibility: AutoSolveButtonVisibility;
+}
+
+const DefaultConfig: PluginConfig = {
+    apiKey: "",
+    apiModel: GptModel.GPT_5_MINI,
+    antiAntiTampering: false,
+    btnVisibility: AutoSolveButtonVisibility.VISIBLE
+}
+
 export default function usePluginConfig() {
-    const [apiKey, setApiKey] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIApiKey, "");
-    const [apiModel, setApiModel] = useGlobalSyncedState<string>(PluginConfigKeys.OpenAIModel, GptModel.GPT_5);
-    const [antiAntiTampering, setAntiAntiTampering] = useGlobalSyncedState<boolean>(PluginConfigKeys.TestPortalAntiAntiTampering, false);
-    const [btnVisibility, setBtnVisibility] = useGlobalSyncedState(PluginConfigKeys.AutoSolveButtonVisibility, AutoSolveButtonVisibility.VISIBLE);
+    const [config, setConfig] = useGlobalSyncedState<PluginConfig>(PluginConfigKey, DefaultConfig);
 
     return {
         pluginConfig: {
-            apiKey,
-            setApiKey,
-            apiModel,
-            setApiModel,
-            antiAntiTampering,
-            setAntiAntiTampering,
-            btnVisibility,
-            setBtnVisibility
+            apiKey: config.apiKey,
+            setApiKey: (val: string) => setConfig(prev => ({ ...prev, apiKey: val })),
+            apiModel: config.apiModel,
+            setApiModel: (val: string) => setConfig(prev => ({ ...prev, apiModel: val })),
+            antiAntiTampering: config.antiAntiTampering,
+            setAntiAntiTampering: (val: boolean) => setConfig(prev => ({ ...prev, antiAntiTampering: val })),
+            btnVisibility: config.btnVisibility,
+            setBtnVisibility: (val: AutoSolveButtonVisibility) => setConfig(prev => ({ ...prev, btnVisibility: val }))
         }
     }
 }
