@@ -26,22 +26,26 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
 
     async function getBase64ImageFromUrl(imageUrl: string) {
         setDownloadingImg(true);
-        const res = await fetch(imageUrl);
-        const blob = await res.blob();
-        setDownloadingImg(false);
 
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.addEventListener("load", function () {
-                resolve(reader.result);
-            }, false);
+        try {
+            const response = await chrome.runtime.sendMessage({
+                type: "FETCH_IMAGE",
+                url: imageUrl
+            });
 
-            reader.onerror = () => {
-                setDownloadingImg(false);
-                return reject(this);
-            };
-            reader.readAsDataURL(blob);
-        })
+            setDownloadingImg(false);
+
+            if (response && response.success) {
+                return response.data;
+            } else {
+                console.error("Failed to fetch image via background script:", response?.error);
+                throw new Error(response?.error || "Unknown error fetching image");
+            }
+        } catch (e) {
+            setDownloadingImg(false);
+            console.error("Error sending message to background script:", e);
+            throw e;
+        }
     }
 
     function getCurrentQuestionType(): QuestionType {

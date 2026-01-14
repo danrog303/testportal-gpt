@@ -1,7 +1,7 @@
 {
   "name": "testportal-gpt",
   "displayName": "TestPortal GPT (now with Moodle support!)",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "description": "Solve TestPortal and Moodle exams automatically using AI!",
   "author": "Daniel Rogowski",
   "scripts": {
@@ -10,6 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@plasmohq/messaging": "^0.7.2",
     "@plasmohq/storage": "^1.15.0",
     "plasmo": "0.90.5",
     "react": "18.2.0",
@@ -36,6 +37,12 @@
           "*://*/*"
         ]
       }
-    ]
+    ],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "background": {
+      "service_worker": "src/background.ts"
+    }
   }
 }

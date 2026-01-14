@@ -59,6 +59,10 @@ function useOpenAI() {
 
         const responseJson = await response.json();
 
+        if (response.status === 401) {
+            throw new Error("OpenAI API returned 'Unauthorized' (401). This usually means your API key is invalid or you have run out of credits/quota. Please check your OpenAI billing settings.");
+        }
+
         if (responseJson.error) {
             if (responseJson.error.message?.includes("Invalid image")) {
                 throw new Error("Model could not process the image. " +
