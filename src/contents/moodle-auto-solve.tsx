@@ -19,8 +19,8 @@ type MoodleAutoSolveProps = {
 }
 
 const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
-    const [ isDownloadingImg, setDownloadingImg ] = useState(false);
-    const [ isLoading, setLoading ] = useState(false);
+    const [isDownloadingImg, setDownloadingImg] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const { generateAnswer } = useQuestionSolver();
     const { pluginConfig } = usePluginConfig();
 
@@ -31,7 +31,7 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         setDownloadingImg(false);
 
         return new Promise((resolve, reject) => {
-            const reader  = new FileReader();
+            const reader = new FileReader();
             reader.addEventListener("load", function () {
                 resolve(reader.result);
             }, false);
@@ -57,7 +57,7 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         } else if (props.questionElement.classList.contains("numerical")) {
             return "openShort";
         } else {
-            throw {msg: `Unknown question type`};
+            throw { msg: `Unknown question type` };
         }
     }
 
@@ -88,25 +88,31 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         if (questionType === "openLong" || questionType === "openShort") {
             question = {
                 answerType: questionType == "openLong" ? "long" : "short",
-                content: (props.questionElement.querySelector(".qtext") as HTMLElement).innerText,
+                content: (props.questionElement.querySelector(".qtext") as HTMLElement)?.innerText ?? "",
                 imageAttachmentUrl: questionImgB64
             }
         } else if (questionType === "closedSingleChoice") {
-            const answerElements = props.questionElement.querySelectorAll('div>div>div.flex-fill>p');
+            let answerElements = props.questionElement.querySelectorAll('div>div>div.flex-fill>p');
+            if (answerElements.length === 0) {
+                answerElements = props.questionElement.querySelectorAll('.answer label');
+            }
             const answerElementsArray = Array.prototype.slice.call(answerElements);
             question = {
                 answerType: "singleChoice",
-                content: (props.questionElement.querySelector(".qtext") as HTMLElement).innerText,
-                possibleAnswers: answerElementsArray.map((elem: HTMLInputElement) => elem.innerText),
+                content: (props.questionElement.querySelector(".qtext") as HTMLElement)?.innerText ?? "",
+                possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
                 imageAttachmentUrl: questionImgB64
             }
         } else if (questionType === "closedMultipleChoice") {
-            const answerElements = props.questionElement.querySelectorAll('.answer p');
+            let answerElements = props.questionElement.querySelectorAll('.answer p');
+            if (answerElements.length === 0) {
+                answerElements = props.questionElement.querySelectorAll('.answer label');
+            }
             const answerElementsArray = Array.prototype.slice.call(answerElements);
             question = {
                 answerType: "multipleChoices",
-                content: (props.questionElement.querySelector(".qtext") as HTMLElement).innerText,
-                possibleAnswers: answerElementsArray.map((elem: HTMLInputElement) => elem.innerText),
+                content: (props.questionElement.querySelector(".qtext") as HTMLElement)?.innerText ?? "",
+                possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
                 imageAttachmentUrl: questionImgB64
             }
         }
@@ -123,10 +129,10 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         try {
             currentQuestionAnswer = await generateAnswer(currentQuestion);
             setLoading(false);
-        } catch(error: any) {
+        } catch (error: any) {
             console.error(error.toString());
             const errorText = error?.message ?? "Some error happened during the API communication...";
-            toast(errorText, {type: "error"});
+            toast(errorText, { type: "error" });
             setLoading(false);
         }
 
@@ -152,16 +158,16 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
 
     let stealthStyle: CSSProperties = {};
     if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE) {
-        stealthStyle = {opacity: 0.05};
+        stealthStyle = { opacity: 0.05 };
     } else if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE) {
-        stealthStyle = {opacity: 0};
+        stealthStyle = { opacity: 0 };
     }
 
     return <>
         <button style={stealthStyle}
-                className={"btn btn-secondary"} onClick={autoSolveCurrentQuestion}
-                disabled={isLoading}>
-            <span style={{fontWeight: "normal"}}>
+            className={"btn btn-secondary"} onClick={autoSolveCurrentQuestion}
+            disabled={isLoading}>
+            <span style={{ fontWeight: "normal" }}>
                 {isDownloadingImg ? "Downloading image..." : isLoading ? "Solving..." : "Auto-solve question"}
             </span>
         </button>
@@ -171,11 +177,11 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
 }
 
 // Mount auto-solve button only on the exam solving subpage.
-const isMoodle = document.head.querySelector('meta[name="keywords"]')?.getAttribute("content")?.includes("moodle");
+const isMoodle = document.querySelector('meta[name="keywords"]')?.getAttribute("content")?.includes("moodle");
 const isExamSolvingSubpage = document.body.id === "page-mod-quiz-attempt";
 const supportedClasses = ["essay", "shortanswer", "multichoice", "truefalse", "numerical"];
 if (isMoodle && isExamSolvingSubpage) {
-    const questions = document.querySelectorAll('[id^="question-"]');
+    const questions = document.querySelectorAll('.que');
     for (const question of questions) {
         const questionSupported = supportedClasses.some(cls => question.classList.contains(cls));
         const anchorPoint = question.querySelector(".formulation");
