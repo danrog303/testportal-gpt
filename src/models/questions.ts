@@ -8,6 +8,7 @@ export interface ClosedQuestion {
     content: string;
     imageAttachmentUrl?: string;
     possibleAnswers: string[];
+    possibleAnswersImages?: (string | null)[];
     answerType: "singleChoice" | "multipleChoices";
 }
 

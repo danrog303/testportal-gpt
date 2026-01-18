@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 import { BaseStorage, Storage } from "@plasmohq/storage"
-import { PluginConfigKeys } from "~hooks/use-plugin-config";
+import { PluginConfigKey, type PluginConfig } from "~hooks/use-plugin-config";
 
 const pluginStorage: BaseStorage = new Storage();
 export const config: PlasmoCSConfig = {
@@ -23,8 +23,15 @@ function applyAntiAntiTampering() {
 }
 
 window.addEventListener("load", async () => {
-    const enableAntiAntiTampering = await pluginStorage.get(PluginConfigKeys.TestPortalAntiAntiTampering);
+    const config = await pluginStorage.get<PluginConfig>(PluginConfigKey);
+    const enableAntiAntiTampering = config?.antiAntiTampering ?? false;
+
     if (enableAntiAntiTampering) {
+        console.log("[testportal-gpt] Applying anti-anti-tampering");
         applyAntiAntiTampering();
+    } else {
+        console.log("[testportal-gpt] Anti-anti-tampering is not enabled");
     }
 })
+
+export default () => null;

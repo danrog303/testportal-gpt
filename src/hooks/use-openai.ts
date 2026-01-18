@@ -5,23 +5,34 @@ function useOpenAI() {
     const { pluginConfig } = usePluginConfig();
     const { getActiveContext } = useContexts();
 
-    async function requestAI(prompt: string, imageAttachment: string | undefined = undefined): Promise<string> {
+    async function requestAI(prompt: string, images: (string | null | undefined)[] | string | undefined = undefined): Promise<string> {
         if (!pluginConfig.apiKey) {
             throw new Error("API key is not set in TestportalGPT plugin configuration.");
         }
 
         const activeContext = getActiveContext();
 
+        // Normalize images argument to an array
+        let imageAttachments: (string | null | undefined)[] = [];
+        if (Array.isArray(images)) {
+            imageAttachments = images;
+        } else if (typeof images === "string") {
+            imageAttachments = [images];
+        }
+
+        // Filter out null/undefined images
+        const validImages = imageAttachments.filter(img => img);
+
+        const content: any[] = [{ type: "input_text", text: prompt }];
+        validImages.forEach(img => {
+            content.push({ type: "input_image", image_url: img });
+        });
+
         const input: any[] = [];
         const userMessage: any = {
             type: "message",
             role: "user",
-            content: imageAttachment
-                ? [
-                    { type: "input_text", text: prompt },
-                    { type: "input_image", image_url: imageAttachment }
-                ]
-                : prompt
+            content: validImages.length > 0 ? content : prompt
         };
         input.push(userMessage);
 

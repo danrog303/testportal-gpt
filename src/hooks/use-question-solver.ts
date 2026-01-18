@@ -44,12 +44,28 @@ function useQuestionSolver() {
             lines.push("The question has an image attachment. Please refer to the image for additional context.");
         }
 
+        if (question.answerType === "singleChoice" || question.answerType === "multipleChoices") {
+            const closedQuestion = question as ClosedQuestion;
+            if (closedQuestion.possibleAnswersImages && closedQuestion.possibleAnswersImages.some(img => img)) {
+                lines.push("Some or all answers have image attachments. The images are sent in the same order as validity of the answers.");
+            }
+        }
+
         return lines.join("\n");
     }
 
     async function generateAnswer(question: Question): Promise<Answer> {
         const prompt = generatePrompt(question);
-        const response = await requestAI(prompt, question.imageAttachmentUrl);
+
+        const images: (string | null | undefined)[] = [question.imageAttachmentUrl];
+        if (question.answerType === "singleChoice" || question.answerType === "multipleChoices") {
+            const closedQuestion = question as ClosedQuestion;
+            if (closedQuestion.possibleAnswersImages) {
+                images.push(...closedQuestion.possibleAnswersImages);
+            }
+        }
+
+        const response = await requestAI(prompt, images);
         if (question.answerType == "short" || question.answerType == "long") {
             return {
                 content: response.trim()

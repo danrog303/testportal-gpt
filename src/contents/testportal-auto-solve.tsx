@@ -27,7 +27,7 @@ export const config: PlasmoCSConfig = {
 // });
 
 const TestportalAutoSolve = () => {
-    const [ isLoading, setLoading ] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const { generateAnswer } = useQuestionSolver();
     const { pluginConfig } = usePluginConfig();
 
@@ -41,7 +41,7 @@ const TestportalAutoSolve = () => {
         } else if (document.querySelector(".question_answers .mdc-radio") !== null) {
             return "closedSingleChoice";
         } else {
-            throw {msg: "Unknown question type"};
+            throw { msg: "Unknown question type" };
         }
     }
 
@@ -71,6 +71,10 @@ const TestportalAutoSolve = () => {
                 answerType: questionType === "closedSingleChoice" ? "singleChoice" : "multipleChoices",
                 content: (document.querySelector(".question_essence") as HTMLElement).innerText,
                 possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
+                possibleAnswersImages: answerElementsArray.map((elem: HTMLElement) => {
+                    const img = elem.querySelector("img");
+                    return img ? img.src : null;
+                }),
                 imageAttachmentUrl: getImageAttachmentUrl()
             }
         }
@@ -87,10 +91,10 @@ const TestportalAutoSolve = () => {
         try {
             currentQuestionAnswer = await generateAnswer(currentQuestion);
             setLoading(false);
-        } catch(error: any) {
+        } catch (error: any) {
             console.error(error.toString());
             const errorText = error?.message ?? "Some error happened during the API communication...";
-            toast(errorText, {type: "error"});
+            toast(errorText, { type: "error" });
             setLoading(false);
         }
 
@@ -116,16 +120,16 @@ const TestportalAutoSolve = () => {
 
     let stealthStyle: CSSProperties = {};
     if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE) {
-        stealthStyle = {opacity: 0.05};
+        stealthStyle = { opacity: 0.05 };
     } else if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE) {
-        stealthStyle = {opacity: 0};
+        stealthStyle = { opacity: 0 };
     }
 
     return <>
         <button style={stealthStyle}
-                className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
-                disabled={isLoading}>
-            <span style={{fontWeight: "normal"}}>
+            className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
+            disabled={isLoading}>
+            <span style={{ fontWeight: "normal" }}>
                 {isLoading ? "Solving..." : "Auto-solve question"}
             </span>
         </button>
@@ -145,3 +149,5 @@ if (isExamSolvingSubpage) {
     const root = createRoot(mountNode)
     root.render(<TestportalAutoSolve />);
 }
+
+export default () => null;

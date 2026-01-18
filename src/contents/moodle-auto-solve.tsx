@@ -105,7 +105,14 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
                 answerType: "singleChoice",
                 content: (props.questionElement.querySelector(".qtext") as HTMLElement)?.innerText ?? "",
                 possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
-                imageAttachmentUrl: questionImgB64
+                imageAttachmentUrl: questionImgB64,
+                possibleAnswersImages: await Promise.all(answerElementsArray.map(async (elem: HTMLElement) => {
+                    const img = elem.querySelector("img");
+                    if (img) {
+                        return await getBase64ImageFromUrl(img.src);
+                    }
+                    return null;
+                }))
             }
         } else if (questionType === "closedMultipleChoice") {
             let answerElements = props.questionElement.querySelectorAll('.answer p');
@@ -117,7 +124,14 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
                 answerType: "multipleChoices",
                 content: (props.questionElement.querySelector(".qtext") as HTMLElement)?.innerText ?? "",
                 possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
-                imageAttachmentUrl: questionImgB64
+                imageAttachmentUrl: questionImgB64,
+                possibleAnswersImages: await Promise.all(answerElementsArray.map(async (elem: HTMLElement) => {
+                    const img = elem.querySelector("img");
+                    if (img) {
+                        return await getBase64ImageFromUrl(img.src);
+                    }
+                    return null;
+                }))
             }
         }
 
@@ -197,3 +211,5 @@ if (isMoodle && isExamSolvingSubpage) {
         }
     }
 }
+
+export default () => null;
