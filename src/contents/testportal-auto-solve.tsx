@@ -14,8 +14,10 @@ export const config: PlasmoCSConfig = {
         "https://*.testportal.pl/*",
         "https://*.testportal.net/*",
         "https://testportal.com/*",
-        "https://*.testportal.com/*"
-    ]
+        "https://*.testportal.com/*",
+        "https://teams.microsoft.com/*"
+    ],
+    all_frames: true
 };
 
 // Reload the page when the plugin configuration changes.

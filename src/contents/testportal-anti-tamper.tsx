@@ -10,8 +10,10 @@ export const config: PlasmoCSConfig = {
         "https://*.testportal.pl/*",
         "https://*.testportal.net/*",
         "https://testportal.com/*",
-        "https://*.testportal.com/*"
-    ]
+        "https://*.testportal.com/*",
+        "https://teams.microsoft.com/*"
+    ],
+    all_frames: true
 };
 
 // Kudos to github.com/alszolowicz/anti-testportal for concept and inspiration.
