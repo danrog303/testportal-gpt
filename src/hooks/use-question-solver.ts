@@ -8,6 +8,7 @@ function useQuestionSolver() {
         const lines: string[] = [];
         const answerType = question.answerType;
 
+        lines.push("You are an expert in this field. Analyze the question step-by-step and assume the persona of a professional.");
         lines.push("Please answer the question.");
 
         if (answerType === "long" || answerType === "short") {
@@ -25,13 +26,13 @@ function useQuestionSolver() {
         if (answerType === "singleChoice") {
             lines.push("Here is the list of possible answers.");
             lines.push("You can choose only one answer.");
-            lines.push("Please answer only with the number of correct answer, for example 3 or 1.");
-            lines.push("Your answer must contain only digits.");
+            lines.push("First, explain your reasoning step-by-step. Then, provide the number of the correct answer at the very end in format 'FINAL ANSWER: X'.");
+            lines.push("For example: '... therefore the answer is 1. FINAL ANSWER: 1'");
         } else if (answerType === "multipleChoices") {
             lines.push("Here is the list of possible answers.");
             lines.push("You can choose one answer or multiple answers.");
-            lines.push('Please answer only with numbers of correct answers separated with comma, for example "1,2,5".');
-            lines.push("Your answer must contain only digits and commas.");
+            lines.push("First, explain your reasoning step-by-step. Then, provide the numbers of correct answers at the very end in format 'FINAL ANSWER: X,Y'.");
+            lines.push("For example: '... therefore the answers are 1 and 2. FINAL ANSWER: 1,2'");
         }
 
         if (answerType === "singleChoice" || answerType === "multipleChoices") {
@@ -71,7 +72,13 @@ function useQuestionSolver() {
                 content: response.trim()
             }
         } else {
-            const answerIndices = response.split(",")
+            let processedResponse = response;
+            const finalAnswerMatch = response.match(/FINAL ANSWER:\s*([0-9, ]+)/i);
+            if (finalAnswerMatch) {
+                processedResponse = finalAnswerMatch[1];
+            }
+
+            const answerIndices = processedResponse.split(",")
                 .map(s => s.trim())
                 .map(s => parseInt(s, 10) - 1)
                 .filter(s => !isNaN(s) && s >= 0);

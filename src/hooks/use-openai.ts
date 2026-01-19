@@ -43,6 +43,16 @@ function useOpenAI() {
 
         if (activeContext?.textContent) {
             requestBody.instructions = `Use the following context information when answering:\n\n${activeContext.textContent}`;
+        } else {
+            requestBody.instructions = "You are an expert assistant. Solve the question accurately.";
+        }
+
+        // Reasoning models (o-series and thinking models) do not support temperature
+        const isReasoningModel = pluginConfig.apiModel.startsWith("o1") ||
+            pluginConfig.apiModel.startsWith("o3") ||
+            pluginConfig.apiModel.includes("-thinking");
+        if (!isReasoningModel) {
+            requestBody.temperature = 0.0;
         }
 
         if (activeContext?.vectorStoreId) {
@@ -52,6 +62,7 @@ function useOpenAI() {
                     vector_store_ids: [activeContext.vectorStoreId]
                 }
             ];
+            requestBody.instructions += "\n\nImportant: You have access to files. Please search the files for relevant information to answer the question.";
         }
 
         let response: Response;
