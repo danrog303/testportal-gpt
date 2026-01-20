@@ -26,7 +26,7 @@ export interface PluginConfig {
 const DefaultConfig: PluginConfig = {
     apiKey: "",
     apiModel: GptModel.GPT_5_2,
-    antiAntiTampering: false,
+    antiAntiTampering: true,
     btnVisibility: AutoSolveButtonVisibility.VISIBLE
 }
 
