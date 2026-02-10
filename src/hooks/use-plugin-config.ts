@@ -4,7 +4,7 @@ import { GptModel } from "~models/openai";
 export enum PluginConfigKeys {
     OpenAIApiKey = "testportal-gpt-api-key",
     OpenAIModel = "testportal-gpt-api-model",
-    TestPortalAntiAntiTampering = "testportal-gpt-anti-anti-tampering",
+    TestportalAntiAntiTampering = "testportal-gpt-anti-anti-tampering",
     AutoSolveButtonVisibility = "testportal-gpt-btn-visibilitiy"
 }
 

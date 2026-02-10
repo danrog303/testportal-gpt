@@ -1,8 +1,8 @@
 {
   "name": "testportal-gpt",
-  "displayName": "TestPortal GPT (now with Moodle support!)",
-  "version": "2.10.1",
-  "description": "Solve TestPortal and Moodle exams automatically using AI!",
+  "displayName": "AntiTestportal GPT (with Moodle support)",
+  "version": "2.11.0",
+  "description": "Solve Testportal and Moodle exams automatically using AI!",
   "author": "Daniel Rogowski",
   "scripts": {
     "dev": "plasmo dev",

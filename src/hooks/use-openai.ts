@@ -1,5 +1,6 @@
 import usePluginConfig from "~hooks/use-plugin-config";
 import useContexts from "~hooks/use-contexts";
+import { t } from "~i18n";
 
 function useOpenAI() {
     const { pluginConfig } = usePluginConfig();
@@ -7,7 +8,7 @@ function useOpenAI() {
 
     async function requestAI(prompt: string, images: (string | null | undefined)[] | string | undefined = undefined): Promise<string> {
         if (!pluginConfig.apiKey) {
-            throw new Error("API key is not set in TestportalGPT plugin configuration.");
+            throw new Error(t("errorApiKeyNotSet"));
         }
 
         const activeContext = getActiveContext();

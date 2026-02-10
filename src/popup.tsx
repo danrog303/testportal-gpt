@@ -6,6 +6,7 @@ import useOpenAI from "~hooks/use-openai";
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import { GptModel } from "~models/openai";
 import ContextManager from "~components/ContextManager";
+import { t } from "~i18n";
 
 function IndexPopup() {
     const { pluginConfig } = usePluginConfig();
@@ -31,52 +32,46 @@ function IndexPopup() {
     }
 
     return <div className={"popup-container"}>
-        <h1>TestPortal GPT</h1>
+        <h1>{t("title")} <span className="popup-version">v{chrome.runtime.getManifest().version}</span></h1>
         <p>
-            Welcome to TestPortal GPT.
-            When you enter any TestPortal test, you should see "Auto-solve" button at the bottom of the question.
-            Click it to let the plugin generate an answer for you.
+            {t("welcome")}
         </p>
         <p className={"popup-buy-coffee-prompt"}>
-            If you like the extension, please consider supporting me by buying me a virtual coffee at <a href={"https://buycoffee.to/danielrogowski"} target={"_blank"} rel={"noopener noreferrer"}>Buycoffee.to</a>.
+            {t("supportPrompt")} <a href={"https://buycoffee.to/danielrogowski"} target={"_blank"} rel={"noopener noreferrer"}>Buycoffee.to</a>.
         </p>
 
         <br />
 
         <div>
-            <label className={"popup-field-label"}>OpenAI API key:</label>
+            <label className={"popup-field-label"}>{t("apiKeyLabel")}</label>
 
             <p>
-                TestportalGPT requires your own API key in order to work.
-                You can get one from OpenAI website.
-                You can test the key using the button below (please note that it will trigger an API request, for which
-                you will be charged).
+                {t("apiKeyDescription")}
             </p>
 
             <input type={"text"} defaultValue={pluginConfig.apiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
-                placeholder={"sk-..."} />
-            <button className={"popup-test-key-btn"} onClick={onTestApiKey}>Test API key</button>
+                placeholder={t("apiKeyPlaceholder")} />
+            <button className={"popup-test-key-btn"} onClick={onTestApiKey}>{t("testApiKey")}</button>
 
             {keyValidationInProgress && <p className={"popup-key-validation-in-progress"}>
-                Please wait, API key validation in progress...
+                {t("validatingKey")}
             </p>}
 
             {keyValid === true && <p className={"popup-successful-key-validation"}>
-                API key is valid! Response: {keyValidationResponse}.
+                {t("keyValid")} {keyValidationResponse}.
             </p>}
 
             {keyValid === false && <p className={"popup-failed-key-validation"}>
-                API key is invalid... Response: {keyValidationResponse}.
+                {t("keyInvalid")} {keyValidationResponse}.
             </p>}
         </div>
 
         <hr />
 
         <div>
-            <label className={"popup-field-label"}>OpenAI API model:</label>
+            <label className={"popup-field-label"}>{t("modelLabel")}</label>
             <p>
-                Choose the model you want to use for generating answers.
-                Please note that the model you choose will affect the quality of the answers and the cost of the API requests.
+                {t("modelDescription")}
             </p>
             <select defaultValue={pluginConfig.apiModel} onChange={e => pluginConfig.setApiModel(e.target.value)}>
                 {Object.values(GptModel).map((model) => (
@@ -90,16 +85,15 @@ function IndexPopup() {
         <hr />
 
         <div>
-            <label className={"popup-field-label"}>Anti-anti-tampering:</label>
+            <label className={"popup-field-label"}>{t("antiTamperingLabel")}</label>
             <p>
-                Testportal has a mechanism that detects when you leave the page.
-                When you enable this option, the plugin will try to prevent this feature from working.
+                {t("antiTamperingDescription")}
             </p>
             <label>
                 <input type={"checkbox"}
                     checked={pluginConfig.antiAntiTampering}
                     onChange={e => pluginConfig.setAntiAntiTampering(e.target.checked)} />
-                Enable
+                {t("enable")}
             </label>
         </div>
 
@@ -110,32 +104,29 @@ function IndexPopup() {
         <hr />
 
         <div>
-            <label className={"popup-field-label"}>Auto-solve button visibility:</label>
+            <label className={"popup-field-label"}>{t("visibilityLabel")}</label>
             <p>
-                When set to "Barely visible", auto-solve button will be given 95% transparency so that it does not
-                attract attention. You can also hide the button completely by setting this option to "Invisible".
+                {t("visibilityDescription")}
             </p>
             <select defaultValue={pluginConfig.btnVisibility}
                 onChange={e => pluginConfig.setBtnVisibility(e.target.value as AutoSolveButtonVisibility)}>
                 <option value={AutoSolveButtonVisibility.VISIBLE}
                     selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.VISIBLE}>
-                    Visible
+                    {t("visibilityVisible")}
                 </option>
 
                 <option value={AutoSolveButtonVisibility.BARELY_VISIBLE}
                     selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE}>
-                    Barely visible
+                    {t("visibilityBarelyVisible")}
                 </option>
 
                 <option value={AutoSolveButtonVisibility.NOT_VISIBLE}
                     selected={pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE}>
-                    Invisible
+                    {t("visibilityInvisible")}
                 </option>
             </select>
             {pluginConfig.btnVisibility === AutoSolveButtonVisibility.NOT_VISIBLE && <p className="popup-visibility-warning">
-                Warning: Now auto-solve button will be completely invisible! You can still click it, but it won't be visible.
-                If you don't know where the button normally is, it is recommended to switch this option to
-                "Barely visible" or "visible".
+                {t("visibilityWarning")}
             </p>}
         </div>
     </div>;

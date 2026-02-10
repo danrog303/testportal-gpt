@@ -26,7 +26,7 @@ function applyAntiAntiTampering() {
 
 window.addEventListener("load", async () => {
     const config = await pluginStorage.get<PluginConfig>(PluginConfigKey);
-    const enableAntiAntiTampering = config?.antiAntiTampering ?? false;
+    const enableAntiAntiTampering = config?.antiAntiTampering ?? true;
 
     if (enableAntiAntiTampering) {
         console.log("[testportal-gpt] Applying anti-anti-tampering");

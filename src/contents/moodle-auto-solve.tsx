@@ -6,6 +6,7 @@ import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-co
 import useQuestionSolver from "~hooks/use-question-solver";
 import type { Answer, ClosedQuestionAnswer, OpenQuestionAnswer, Question, QuestionType } from "~models/questions";
 import { createRoot } from "react-dom/client";
+import { t } from "~i18n";
 
 // Moodle is self-hosted, so we need to match all possible URLs.
 export const config: PlasmoCSConfig = {
@@ -81,7 +82,7 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         let question: Question;
         const questionType: QuestionType = getCurrentQuestionType();
 
-        // Unlike in TestPortal, where all images are publicly accessible, in Moodle they might be behind authentication.
+        // Unlike in Testportal, where all images are publicly accessible, in Moodle they might be behind authentication.
         // Thus, we need to convert them to base64 to send them directly to the AI.
         let questionImgUrl = getImageAttachmentUrl();
         let questionImgB64 = null;
@@ -149,7 +150,7 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
             setLoading(false);
         } catch (error: any) {
             console.error(error.toString());
-            const errorText = error?.message ?? "Some error happened during the API communication...";
+            const errorText = error?.message ?? t("apiError");
             toast(errorText, { type: "error" });
             setLoading(false);
         }
@@ -186,7 +187,7 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
             className={"btn btn-secondary"} onClick={autoSolveCurrentQuestion}
             disabled={isLoading}>
             <span style={{ fontWeight: "normal" }}>
-                {isDownloadingImg ? "Downloading image..." : isLoading ? "Solving..." : "Auto-solve question"}
+                {isDownloadingImg ? t("downloadingImage") : isLoading ? t("solving") : t("autoSolve")}
             </span>
         </button>
 

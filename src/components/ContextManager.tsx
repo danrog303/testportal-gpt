@@ -3,6 +3,7 @@ import useContexts from "~hooks/use-contexts";
 import usePluginConfig from "~hooks/use-plugin-config";
 import useOpenAIFiles from "~hooks/use-openai-files";
 import { generateId, type ContextFile } from "~models/context";
+import { t } from "~i18n";
 
 export default function ContextManager() {
     const {
@@ -72,7 +73,7 @@ export default function ContextManager() {
         const files = event.target.files;
         if (!files || files.length === 0 || !activeContext) return;
         if (!pluginConfig.apiKey) {
-            setUploadError("Please set your OpenAI API key first.");
+            setUploadError(t("setApiKeyFirst"));
             return;
         }
 
@@ -103,7 +104,7 @@ export default function ContextManager() {
                 addFileToContext(activeContext.id, contextFile);
             }
         } catch (error) {
-            setUploadError(error instanceof Error ? error.message : "Failed to upload file.");
+            setUploadError(error instanceof Error ? error.message : t("failedToUpload"));
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) {
@@ -142,10 +143,9 @@ export default function ContextManager() {
 
     return (
         <div className="context-manager">
-            <label className="popup-field-label">Context management:</label>
+            <label className="popup-field-label">{t("contextLabel")}</label>
             <p>
-                Create and manage contexts with text and file attachments.
-                Files will be uploaded to OpenAI and used to answer questions.
+                {t("contextDescription")}
             </p>
 
             <div className="context-selector">
@@ -153,7 +153,7 @@ export default function ContextManager() {
                     value={activeContextId || ""}
                     onChange={e => setActiveContextId(e.target.value || null)}
                 >
-                    <option value="">-- No context selected --</option>
+                    <option value="">{t("noContextSelected")}</option>
                     {contexts.map(ctx => (
                         <option key={ctx.id} value={ctx.id}>{ctx.name}</option>
                     ))}
@@ -163,13 +163,13 @@ export default function ContextManager() {
             <div className="context-create">
                 <input
                     type="text"
-                    placeholder="New context name..."
+                    placeholder={t("newContextPlaceholder")}
                     value={newContextName}
                     onChange={e => setNewContextName(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleCreateContext()}
                 />
                 <button onClick={handleCreateContext} disabled={!newContextName.trim()}>
-                    Create
+                    {t("create")}
                 </button>
             </div>
 
@@ -177,14 +177,14 @@ export default function ContextManager() {
                 <div className="context-editor">
                     <h4>{activeContext.name}</h4>
 
-                    <label className="context-text-label">Text content:</label>
+                    <label className="context-text-label">{t("textContentLabel")}</label>
                     <textarea
                         value={activeContext.textContent}
                         onChange={e => setContextText(activeContext.id, e.target.value)}
-                        placeholder="Add text context that will be included in prompts..."
+                        placeholder={t("textContentPlaceholder")}
                     />
 
-                    <label className="context-files-label">Files:</label>
+                    <label className="context-files-label">{t("filesLabel")}</label>
                     <div className="context-file-upload">
                         <input
                             ref={fileInputRef}
@@ -196,7 +196,7 @@ export default function ContextManager() {
                         />
                         {isUploading && <span className="upload-status">
                             <div className="tiny-spinner" style={{ borderTopColor: "#333", border: "2px solid rgba(0,0,0,0.1)" }}></div>
-                            Uploading...
+                            {t("uploading")}
                         </span>}
                     </div>
 
@@ -213,7 +213,7 @@ export default function ContextManager() {
                                     <button
                                         className="file-remove-btn"
                                         onClick={() => handleRemoveFile(file.id)}
-                                        title="Remove file"
+                                        title={t("removeFile")}
                                     >
                                         ×
                                     </button>
@@ -229,8 +229,8 @@ export default function ContextManager() {
                     >
                         {isDeleting ? <>
                             <div className="tiny-spinner"></div>
-                            Deleting...
-                        </> : "Delete context"}
+                            {t("deleting")}
+                        </> : t("deleteContext")}
                     </button>
                 </div>
             )}

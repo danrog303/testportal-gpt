@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import useQuestionSolver from "~hooks/use-question-solver";
 import type { Answer, ClosedQuestionAnswer, OpenQuestionAnswer, Question, QuestionType } from "~models/questions";
+import { t } from "~i18n";
 
 export const config: PlasmoCSConfig = {
     matches: [
@@ -95,7 +96,7 @@ const TestportalAutoSolve = () => {
             setLoading(false);
         } catch (error: any) {
             console.error(error.toString());
-            const errorText = error?.message ?? "Some error happened during the API communication...";
+            const errorText = error?.message ?? t("apiError");
             toast(errorText, { type: "error" });
             setLoading(false);
         }
@@ -132,7 +133,7 @@ const TestportalAutoSolve = () => {
             className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
             disabled={isLoading}>
             <span style={{ fontWeight: "normal" }}>
-                {isLoading ? "Solving..." : "Auto-solve question"}
+                {isLoading ? t("solving") : t("autoSolve")}
             </span>
         </button>
 

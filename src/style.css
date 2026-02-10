@@ -1,4 +1,4 @@
-/* Modern TestPortal GPT Popup Styles */
+/* Modern Testportal GPT Popup Styles */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -64,6 +64,14 @@ h1 {
     background-clip: text;
     margin-bottom: 8px;
     letter-spacing: -0.5px;
+}
+
+.popup-version {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    -webkit-text-fill-color: var(--text-muted);
+    background: none;
 }
 
 p {
@@ -500,4 +508,51 @@ textarea {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--border-hover);
+}
+
+/* Light Theme */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-card: rgba(241, 245, 249, 0.9);
+        --bg-input: rgba(226, 232, 240, 0.6);
+        --border-color: rgba(0, 0, 0, 0.1);
+        --border-hover: rgba(0, 0, 0, 0.2);
+
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    select option {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    input[type="checkbox"]:checked::after {
+        color: white;
+    }
+
+    .tiny-spinner {
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-top-color: currentColor;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.25);
+    }
 }
