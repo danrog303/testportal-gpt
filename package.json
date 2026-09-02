@@ -1,7 +1,7 @@
 {
   "name": "testportal-gpt",
   "displayName": "AntiTestportal GPT (with Moodle support)",
-  "version": "2.11.0",
+  "version": "2.11.1",
   "description": "Solve Testportal and Moodle exams automatically using AI!",
   "author": "Daniel Rogowski",
   "scripts": {
@@ -13,19 +13,19 @@
     "@plasmohq/messaging": "^0.7.2",
     "@plasmohq/storage": "^1.15.0",
     "plasmo": "0.90.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-toastify": "^11.0.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-toastify": "^11.1.0",
     "use-async-effect": "^2.2.7"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
-    "@types/chrome": "0.0.258",
-    "@types/node": "20.11.5",
-    "@types/react": "18.2.48",
-    "@types/react-dom": "18.2.18",
-    "prettier": "3.2.4",
-    "typescript": "5.3.3"
+    "@ianvs/prettier-plugin-sort-imports": "4.7.1",
+    "@types/chrome": "0.2.8",
+    "@types/node": "26.4.1",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "prettier": "3.9.6",
+    "typescript": "7.0.2"
   },
   "manifest": {
     "web_accessible_resources": [
