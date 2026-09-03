@@ -9,6 +9,8 @@ export const MSG_GLOBAL_STATE_CHANGE = "testportal-global-state-change";
 const pluginStorage = new Storage();
 const stateMap = new Map<string, any>();
 const emitter = new EventEmitter();
+const watchedKeys = new Set<string>();
+
 export const stateBus = {
     get: <T>(key: string): T | undefined => stateMap.get(key),
     set: <T>(key: string, value: T) => {
@@ -19,6 +21,18 @@ export const stateBus = {
         emitter.on(key, callback)
         return () => emitter.off(key, callback)
     }
+}
+
+function ensureKeyIsWatched(key: string, defaultValue?: any) {
+    if (watchedKeys.has(key)) return;
+    watchedKeys.add(key);
+
+    pluginStorage.watch({
+        [key]: (c) => {
+            const val = c.newValue !== undefined ? c.newValue : defaultValue;
+            stateBus.set(key, val);
+        }
+    });
 }
 
 /*
@@ -41,6 +55,10 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
             // Initialize with default value if nothing in storage
             stateBus.set(key, defaultValue);
         }
+        
+        // Start watching for external storage changes across tabs/popup
+        ensureKeyIsWatched(key, defaultValue);
+        
         isInitialized.current = true;
     }, [])
 
@@ -65,4 +83,4 @@ export default function useSyncedState<T>(key: string, defaultValue: T): [T, Rea
     }
 
     return [value, setSharedValue]
-}
+}

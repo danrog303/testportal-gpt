@@ -143,7 +143,7 @@ function IndexPopup() {
                 {t("apiKeyDescription")}
             </p>
 
-            <input type={"text"} defaultValue={pluginConfig.apiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
+            <input type={"text"} defaultValue={pluginConfig.provider === "claude" ? pluginConfig.claudeApiKey : pluginConfig.provider === "gemini" ? pluginConfig.geminiApiKey : pluginConfig.openaiApiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
                 placeholder={getApiKeyPlaceholder(pluginConfig.provider)} key={pluginConfig.provider + "-apikey"} />
 
             {pluginConfig.provider === "claude" && (
