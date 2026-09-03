@@ -1,8 +1,8 @@
 import type { Answer, ClosedQuestion, Question } from "~models/questions"
-import useOpenAI from "~hooks/use-openai"
+import useAI from "~hooks/use-ai"
 
 function useQuestionSolver() {
-    const { requestAI } = useOpenAI();
+    const { requestAI } = useAI();
 
     function generatePrompt(question: Question): string {
         const lines: string[] = [];

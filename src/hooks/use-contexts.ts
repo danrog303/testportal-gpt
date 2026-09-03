@@ -60,8 +60,8 @@ export default function useContexts() {
         }
     }
 
-    function setContextVectorStore(contextId: string, vectorStoreId: string | null): void {
-        updateContext(contextId, { vectorStoreId });
+    function setContextFileContextId(contextId: string, fileContextId: string | null): void {
+        updateContext(contextId, { fileContextId });
     }
 
     return {
@@ -76,6 +76,6 @@ export default function useContexts() {
         setContextText,
         addFileToContext,
         removeFileFromContext,
-        setContextVectorStore
+        setContextFileContextId
     };
 }

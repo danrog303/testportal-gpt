@@ -426,6 +426,11 @@ button {
     font-size: 12px;
 }
 
+.context-file-list .file-provider-mismatch,
+.context-file-list .file-expired-warning {
+    cursor: help;
+}
+
 .context-file-list .file-remove-btn {
     width: 28px;
     height: 28px;

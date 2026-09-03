@@ -1,13 +1,21 @@
+import type { ProviderType } from "~providers/ai-provider";
+
 /**
- * Represents a file uploaded to OpenAI for context.
+ * Represents a file uploaded to an AI provider for context.
  */
 export interface ContextFile {
     /** Local unique identifier */
     id: string;
     /** Original filename */
     name: string;
-    /** OpenAI file ID after upload */
-    openaiFileId: string;
+    /** Which provider this file was uploaded to */
+    provider: ProviderType;
+    /** Provider-specific file identifier */
+    providerFileId: string;
+    /** Provider-specific file URI (Gemini) */
+    providerFileUri?: string;
+    /** Provider-specific MIME type (Gemini) */
+    providerFileMimeType?: string;
     /** File size in bytes */
     size: number;
     /** Timestamp when file was uploaded */
@@ -27,11 +35,11 @@ export interface Context {
     /** Text content to include in prompts */
     textContent: string;
 
-    /** Files uploaded to OpenAI */
+    /** Files uploaded to the AI provider */
     files: ContextFile[];
 
-    /** OpenAI vector store ID for file search */
-    vectorStoreId: string | null;
+    /** Provider-specific file context ID (e.g. OpenAI vector store ID) */
+    fileContextId: string | null;
 
     /** Timestamp when context was created */
     createdAt: number;
@@ -57,7 +65,7 @@ export function createContext(name: string): Context {
         name,
         textContent: "",
         files: [],
-        vectorStoreId: null,
+        fileContextId: null,
         createdAt: now,
         updatedAt: now
     };

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import useContexts from "~hooks/use-contexts";
 import usePluginConfig from "~hooks/use-plugin-config";
-import useOpenAIFiles from "~hooks/use-openai-files";
+import useProviderFiles from "~hooks/use-provider-files";
 import { generateId, type ContextFile } from "~models/context";
 import { t } from "~i18n";
 
@@ -15,18 +15,18 @@ export default function ContextManager() {
         setContextText,
         addFileToContext,
         removeFileFromContext,
-        setContextVectorStore,
+        setContextFileContextId,
         getContext
     } = useContexts();
     const { pluginConfig } = usePluginConfig();
     const {
         uploadFile,
         deleteFile,
+        deleteFileContext,
         createVectorStore,
-        deleteVectorStore,
         addFileToVectorStore,
         removeFileFromVectorStore
-    } = useOpenAIFiles();
+    } = useProviderFiles();
 
     const [newContextName, setNewContextName] = useState("");
     const [isUploading, setIsUploading] = useState(false);
@@ -49,17 +49,21 @@ export default function ContextManager() {
         try {
             for (const file of activeContext.files) {
                 try {
-                    await deleteFile(file.openaiFileId);
+                    await deleteFile({
+                        fileId: file.providerFileId,
+                        fileUri: file.providerFileUri,
+                        mimeType: file.providerFileMimeType
+                    });
                 } catch (e) {
-                    console.warn("Failed to delete file from OpenAI:", e);
+                    console.warn("Failed to delete file from provider:", e);
                 }
             }
 
-            if (activeContext.vectorStoreId) {
+            if (activeContext.fileContextId) {
                 try {
-                    await deleteVectorStore(activeContext.vectorStoreId);
+                    await deleteFileContext(activeContext.fileContextId);
                 } catch (e) {
-                    console.warn("Failed to delete vector store from OpenAI:", e);
+                    console.warn("Failed to delete file context:", e);
                 }
             }
 
@@ -82,22 +86,27 @@ export default function ContextManager() {
 
         try {
             for (const file of Array.from(files)) {
-                const openaiFileId = await uploadFile(file);
+                const result = await uploadFile(file, activeContext.name);
 
-                let vectorStoreId = activeContext.vectorStoreId;
-                if (!vectorStoreId) {
-                    vectorStoreId = await createVectorStore(
-                        `testportal-gpt-${activeContext.name}`
-                    );
-                    setContextVectorStore(activeContext.id, vectorStoreId);
+                // For OpenAI: manage vector store
+                if (pluginConfig.provider === "openai") {
+                    let fileContextId = activeContext.fileContextId;
+                    if (!fileContextId) {
+                        fileContextId = await createVectorStore(
+                            `testportal-gpt-${activeContext.name}`
+                        );
+                        setContextFileContextId(activeContext.id, fileContextId);
+                    }
+                    await addFileToVectorStore(fileContextId, result.fileRef.fileId);
                 }
-
-                await addFileToVectorStore(vectorStoreId, openaiFileId);
 
                 const contextFile: ContextFile = {
                     id: generateId(),
                     name: file.name,
-                    openaiFileId,
+                    provider: pluginConfig.provider,
+                    providerFileId: result.fileRef.fileId,
+                    providerFileUri: result.fileRef.fileUri,
+                    providerFileMimeType: result.fileRef.mimeType,
                     size: file.size,
                     uploadedAt: Date.now()
                 };
@@ -120,16 +129,21 @@ export default function ContextManager() {
         if (!file) return;
 
         try {
-            if (activeContext.vectorStoreId) {
+            // For OpenAI: remove from vector store first
+            if (file.provider === "openai" && activeContext.fileContextId) {
                 await removeFileFromVectorStore(
-                    activeContext.vectorStoreId,
-                    file.openaiFileId
+                    activeContext.fileContextId,
+                    file.providerFileId
                 );
             }
 
-            await deleteFile(file.openaiFileId);
+            await deleteFile({
+                fileId: file.providerFileId,
+                fileUri: file.providerFileUri,
+                mimeType: file.providerFileMimeType
+            });
         } catch (e) {
-            console.warn("Failed to delete file from OpenAI:", e);
+            console.warn("Failed to delete file from provider:", e);
         }
 
         removeFileFromContext(activeContext.id, fileId);
@@ -206,19 +220,28 @@ export default function ContextManager() {
 
                     {activeContext.files.length > 0 && (
                         <ul className="context-file-list">
-                            {activeContext.files.map(file => (
-                                <li key={file.id}>
-                                    <span className="file-name">{file.name}</span>
-                                    <span className="file-size">({formatFileSize(file.size)})</span>
-                                    <button
-                                        className="file-remove-btn"
-                                        onClick={() => handleRemoveFile(file.id)}
-                                        title={t("removeFile")}
-                                    >
-                                        ×
-                                    </button>
-                                </li>
-                            ))}
+                            {activeContext.files.map(file => {
+                                const isExpired = file.provider === "gemini" && (Date.now() - file.uploadedAt > 48 * 60 * 60 * 1000);
+                                return (
+                                    <li key={file.id}>
+                                        <span className={`file-name ${isExpired ? 'expired' : ''}`}>{file.name}</span>
+                                        <span className="file-size">({formatFileSize(file.size)})</span>
+                                        {file.provider !== pluginConfig.provider && (
+                                            <span className="file-provider-mismatch" title={t("fileProviderMismatchWarning")}>⚠️</span>
+                                        )}
+                                        {isExpired && (
+                                            <span className="file-expired-warning" title={t("fileExpiredWarning")}>⏱️</span>
+                                        )}
+                                        <button
+                                            className="file-remove-btn"
+                                            onClick={() => handleRemoveFile(file.id)}
+                                            title={t("removeFile")}
+                                        >
+                                            ×
+                                        </button>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     )}
 

@@ -34,6 +34,29 @@ const TestportalAutoSolve = () => {
     const { generateAnswer } = useQuestionSolver();
     const { pluginConfig } = usePluginConfig();
 
+    const [isDownloadingImg, setDownloadingImg] = useState(false);
+
+    async function getBase64ImageFromUrl(imageUrl: string) {
+        setDownloadingImg(true);
+        try {
+            const response = await chrome.runtime.sendMessage({
+                type: "FETCH_IMAGE",
+                url: imageUrl
+            });
+            setDownloadingImg(false);
+            if (response && response.success) {
+                return response.data;
+            } else {
+                console.error("Failed to fetch image via background script:", response?.error);
+                throw new Error(response?.error || "Unknown error fetching image");
+            }
+        } catch (e) {
+            setDownloadingImg(false);
+            console.error("Error sending message to background script:", e);
+            throw e;
+        }
+    }
+
     function getCurrentQuestionType(): QuestionType {
         if (document.querySelector(".question_answers .rich-text-answer-container") !== null) {
             return "openLong";
@@ -57,15 +80,21 @@ const TestportalAutoSolve = () => {
         }
     }
 
-    function parseCurrentQuestion(): Question {
+    async function parseCurrentQuestion(): Promise<Question> {
         let question: Question;
         const questionType = getCurrentQuestionType();
+
+        let questionImgUrl = getImageAttachmentUrl();
+        let questionImgB64 = null;
+        if (questionImgUrl) {
+            questionImgB64 = await getBase64ImageFromUrl(questionImgUrl);
+        }
 
         if (questionType === "openLong" || questionType === "openShort") {
             question = {
                 answerType: questionType == "openLong" ? "long" : "short",
                 content: (document.querySelector(".question_essence") as HTMLElement).innerText,
-                imageAttachmentUrl: getImageAttachmentUrl()
+                imageAttachmentUrl: questionImgB64
             }
         } else if (questionType === "closedSingleChoice" || questionType === "closedMultipleChoice") {
             const answerElements = document.querySelectorAll(".answer_container");
@@ -74,11 +103,11 @@ const TestportalAutoSolve = () => {
                 answerType: questionType === "closedSingleChoice" ? "singleChoice" : "multipleChoices",
                 content: (document.querySelector(".question_essence") as HTMLElement).innerText,
                 possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
-                possibleAnswersImages: answerElementsArray.map((elem: HTMLElement) => {
+                possibleAnswersImages: await Promise.all(answerElementsArray.map(async (elem: HTMLElement) => {
                     const img = elem.querySelector("img");
-                    return img ? img.src : null;
-                }),
-                imageAttachmentUrl: getImageAttachmentUrl()
+                    return img ? await getBase64ImageFromUrl(img.src) : null;
+                })),
+                imageAttachmentUrl: questionImgB64
             }
         }
 
@@ -88,10 +117,11 @@ const TestportalAutoSolve = () => {
     async function autoSolveCurrentQuestion(event: MouseEvent) {
         event.preventDefault();
         setLoading(true);
-        const currentQuestion: Question = parseCurrentQuestion();
+        let currentQuestion: Question;
         let currentQuestionAnswer: Answer;
 
         try {
+            currentQuestion = await parseCurrentQuestion();
             currentQuestionAnswer = await generateAnswer(currentQuestion);
             setLoading(false);
         } catch (error: any) {
@@ -99,9 +129,10 @@ const TestportalAutoSolve = () => {
             const errorText = error?.message ?? t("apiError");
             toast(errorText, { type: "error" });
             setLoading(false);
+            return;
         }
 
-        if (currentQuestion.answerType === "long") {
+        if (currentQuestion!.answerType === "long") {
             const answerFrame = document.getElementById("givenAnswer_ifr") as HTMLIFrameElement;
             const answerFrameDoc = answerFrame.contentDocument ? answerFrame.contentDocument : answerFrame.contentWindow.document;
             answerFrameDoc.body.innerHTML = (currentQuestionAnswer as OpenQuestionAnswer).content;
@@ -131,9 +162,9 @@ const TestportalAutoSolve = () => {
     return <>
         <button style={stealthStyle}
             className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
-            disabled={isLoading}>
+            disabled={isLoading || isDownloadingImg}>
             <span style={{ fontWeight: "normal" }}>
-                {isLoading ? t("solving") : t("autoSolve")}
+                {isDownloadingImg ? t("downloadingImage") : (isLoading ? t("solving") : t("autoSolve"))}
             </span>
         </button>
 
