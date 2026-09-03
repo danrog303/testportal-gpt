@@ -133,6 +133,7 @@ export class OpenAIProvider implements AIProvider {
                                    lowerId.includes("tts") ||
                                    lowerId.includes("transcribe") ||
                                    lowerId.includes("gpt-image") ||
+                                   lowerId.includes("preview") ||
                                    hasDateSuffix;
                                    
                 return !isExcluded;

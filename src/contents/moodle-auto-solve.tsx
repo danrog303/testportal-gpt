@@ -29,10 +29,15 @@ const MoodleAutoSolve = (props: MoodleAutoSolveProps) => {
         setDownloadingImg(true);
 
         try {
-            const response = await chrome.runtime.sendMessage({
-                type: "FETCH_IMAGE",
-                url: imageUrl
-            });
+            const response = await Promise.race([
+                chrome.runtime.sendMessage({
+                    type: "FETCH_IMAGE",
+                    url: imageUrl
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Timeout: The extension background service worker did not respond. Try refreshing the page.")), 15000)
+                )
+            ]) as any;
 
             setDownloadingImg(false);
 
