@@ -5,6 +5,7 @@ type TranslationKeys = {
     title: string;
     welcome: string;
     supportPrompt: string;
+    supportPromptOr: string;
     apiKeyLabel: string;
     apiKeyDescription: string;
     apiKeyPlaceholder: string;
@@ -54,8 +55,9 @@ const translations: Record<Locale, TranslationKeys> = {
     en: {
         // Popup
         title: "AntiTestportal GPT",
-        welcome: "Welcome to AntiTestportal GPT. When you enter any Testportal test, you should see \"Auto-solve\" button at the bottom of the question. Click it to let the plugin generate an answer for you.",
-        supportPrompt: "If you like the extension, please consider supporting me by buying me a virtual coffee at",
+        welcome: "Welcome to AntiTestportal GPT. When you enter any test (on Testportal or Moodle), you should see \"Auto-solve\" button at the bottom of the question. Click it to let the plugin generate an answer for you.",
+        supportPrompt: "If you like the extension, please consider supporting me by buying me a virtual coffee on",
+        supportPromptOr: "or via",
         apiKeyLabel: "OpenAI API key:",
         apiKeyDescription: "AntiTestportal GPT requires your own API key in order to work. You can get one from OpenAI website. You can test the key using the button below (please note that it will trigger an API request, for which you will be charged).",
         apiKeyPlaceholder: "sk-...",
@@ -105,6 +107,7 @@ const translations: Record<Locale, TranslationKeys> = {
         title: "AntiTestportal GPT",
         welcome: "Witaj w AntiTestportal GPT. Po wejściu na dowolny test (na stronie Testportal lub Moodle), powinieneś zobaczyć przycisk \"Rozwiąż automatycznie\" na dole pytania. Kliknij go, aby wtyczka wygenerowała odpowiedź.",
         supportPrompt: "Jeśli podoba Ci się rozszerzenie, rozważ wsparcie mnie poprzez zakup wirtualnej kawy na",
+        supportPromptOr: "lub poprzez",
         apiKeyLabel: "Klucz API OpenAI:",
         apiKeyDescription: "AntiTestportal GPT wymaga własnego klucza API do działania. Możesz go uzyskać na stronie OpenAI. Możesz przetestować klucz za pomocą poniższego przycisku (uwaga: spowoduje to wysłanie zapytania API, za które zostaniesz obciążony).",
         apiKeyPlaceholder: "sk-...",

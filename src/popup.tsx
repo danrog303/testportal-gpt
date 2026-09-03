@@ -6,11 +6,20 @@ import useOpenAI from "~hooks/use-openai";
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import { GptModel } from "~models/openai";
 import ContextManager from "~components/ContextManager";
-import { t } from "~i18n";
+import { getLocale, t } from "~i18n";
+
+const DONATION_LINKS = {
+    buycoffee: "https://buycoffee.to/danielrogowski",
+    kofi: "https://ko-fi.com/danrog303",
+    paypal: "https://paypal.me/Daniel635"
+};
 
 function IndexPopup() {
     const { pluginConfig } = usePluginConfig();
     const { requestAI } = useOpenAI();
+    const coffeeDonationLink = getLocale() === "pl"
+        ? { href: DONATION_LINKS.buycoffee, label: "Buycoffee.to" }
+        : { href: DONATION_LINKS.kofi, label: "Ko-fi" };
 
     const [keyValid, setKeyValid] = useState<boolean | null>(null);
     const [keyValidationInProgress, setKeyValidationInProgress] = useState<boolean>(false);
@@ -37,7 +46,7 @@ function IndexPopup() {
             {t("welcome")}
         </p>
         <p className={"popup-buy-coffee-prompt"}>
-            {t("supportPrompt")} <a href={"https://buycoffee.to/danielrogowski"} target={"_blank"} rel={"noopener noreferrer"}>Buycoffee.to</a>.
+            {t("supportPrompt")} <a href={coffeeDonationLink.href} target={"_blank"} rel={"noopener noreferrer"}>{coffeeDonationLink.label}</a> {t("supportPromptOr")} <a href={DONATION_LINKS.paypal} target={"_blank"} rel={"noopener noreferrer"}>PayPal</a>.
         </p>
 
         <br />
