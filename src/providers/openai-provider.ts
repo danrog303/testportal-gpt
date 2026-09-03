@@ -1,8 +1,9 @@
-import { AIModel, AIProvider, AIRequestParams, ProviderFileRef, UploadedFileResult } from "./ai-provider";
+import { AIModel, AIProvider, AIRequestParams, AIStreamRequestParams, ProviderFileRef, UploadedFileResult } from "./ai-provider";
+import { readSSEStream } from "~utils/sse";
 
 export class OpenAIProvider implements AIProvider {
-    async requestAI(params: AIRequestParams): Promise<string> {
-        const { apiKey, model, prompt, images, systemInstructions, fileContextId } = params;
+    private buildRequestBody(params: AIRequestParams, stream = false): any {
+        const { model, prompt, images, systemInstructions, fileContextId } = params;
 
         let imageAttachments: string[] = [];
         if (Array.isArray(images)) {
@@ -27,6 +28,10 @@ export class OpenAIProvider implements AIProvider {
             input: input
         };
 
+        if (stream) {
+            requestBody.stream = true;
+        }
+
         if (systemInstructions) {
             requestBody.instructions = systemInstructions;
         }
@@ -45,6 +50,13 @@ export class OpenAIProvider implements AIProvider {
                 requestBody.instructions = fileSearchNote.trim();
             }
         }
+
+        return requestBody;
+    }
+
+    async requestAI(params: AIRequestParams): Promise<string> {
+        const { apiKey } = params;
+        const requestBody = this.buildRequestBody(params, false);
 
         let response: Response;
         try {
@@ -93,6 +105,79 @@ export class OpenAIProvider implements AIProvider {
         }
 
         throw new Error("Could not extract response text from OpenAI API response.");
+    }
+
+    async streamAI(params: AIStreamRequestParams): Promise<string> {
+        const { apiKey, onChunk, signal } = params;
+        const requestBody = this.buildRequestBody(params, true);
+
+        let response: Response;
+        try {
+            response = await fetch("https://api.openai.com/v1/responses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(requestBody),
+                signal
+            });
+        } catch (error: any) {
+            if (signal?.aborted) {
+                return "";
+            }
+            throw new Error(`Failed to fetch from OpenAI API: ${error.message}`);
+        }
+
+        if (response.status === 401) {
+            throw new Error(
+                "OpenAI API returned 'Unauthorized' (401). This usually means your API key is invalid or you have run out of credits/quota. Please check your OpenAI billing settings."
+            );
+        }
+
+        if (!response.ok) {
+            let errorMsg = `HTTP error! status: ${response.status}`;
+            try {
+                const responseJson = await response.json();
+                if (responseJson.error?.message?.includes("Invalid image")) {
+                    errorMsg = "Model could not process the image. Make sure you've chosen a model that supports images.";
+                } else if (responseJson.error?.message) {
+                    errorMsg = responseJson.error.message;
+                }
+            } catch {
+                // Ignore parse error
+            }
+            throw new Error(errorMsg);
+        }
+
+        let accumulatedText = "";
+
+        await readSSEStream(
+            response,
+            msg => {
+                const { event, data } = msg;
+                if (!data) return;
+
+                if (event === "error" || data.type === "error" || data.error) {
+                    throw new Error(data.message || data.error?.message || "OpenAI stream error");
+                }
+
+                if (typeof data.delta === "string" && data.delta) {
+                    accumulatedText += data.delta;
+                    onChunk(data.delta);
+                } else if (data.type === "response.output_text.done" && !accumulatedText && data.text) {
+                    accumulatedText = data.text;
+                    onChunk(data.text);
+                }
+            },
+            signal
+        );
+
+        if (!accumulatedText && !signal?.aborted) {
+            throw new Error("No response content was received from OpenAI.");
+        }
+
+        return accumulatedText.trim();
     }
 
     async listModels(apiKey: string): Promise<AIModel[]> {

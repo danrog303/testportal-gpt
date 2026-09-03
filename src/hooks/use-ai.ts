@@ -4,11 +4,13 @@ import { getProvider } from "~providers";
 import type { ProviderFileRef } from "~providers/ai-provider";
 import { t } from "~i18n";
 
+import { normalizeImageDataUrl } from "~utils/image";
+
 function useAI() {
     const { pluginConfig } = usePluginConfig();
     const { getActiveContext } = useContexts();
 
-    async function requestAI(prompt: string, images: (string | null | undefined)[] | string | undefined = undefined): Promise<string> {
+    function prepareParams(prompt: string, images: (string | null | undefined)[] | string | undefined = undefined) {
         if (!pluginConfig.apiKey) {
             throw new Error(t("errorApiKeyNotSet"));
         }
@@ -23,7 +25,9 @@ function useAI() {
         } else if (typeof images === "string") {
             imageAttachments = [images];
         }
-        const validImages = imageAttachments.filter(img => img) as string[];
+        const validImages = imageAttachments
+            .filter((img): img is string => typeof img === "string" && img.length > 0)
+            .map(normalizeImageDataUrl);
 
         // Build system instructions from context
         let systemInstructions: string;
@@ -47,19 +51,42 @@ function useAI() {
             }
         }
 
-        return provider.requestAI({
-            apiKey: pluginConfig.apiKey,
-            model: pluginConfig.apiModel,
-            prompt,
-            images: validImages.length > 0 ? validImages : undefined,
-            systemInstructions,
-            fileRefs: fileRefs.length > 0 ? fileRefs : undefined,
-            fileContextId: activeContext?.fileContextId || undefined
+        return {
+            provider,
+            requestParams: {
+                apiKey: pluginConfig.apiKey,
+                model: pluginConfig.apiModel,
+                prompt,
+                images: validImages.length > 0 ? validImages : undefined,
+                systemInstructions,
+                fileRefs: fileRefs.length > 0 ? fileRefs : undefined,
+                fileContextId: activeContext?.fileContextId || undefined
+            }
+        };
+    }
+
+    async function requestAI(prompt: string, images: (string | null | undefined)[] | string | undefined = undefined): Promise<string> {
+        const { provider, requestParams } = prepareParams(prompt, images);
+        return provider.requestAI(requestParams);
+    }
+
+    async function streamAI(
+        prompt: string,
+        onChunk: (chunk: string) => void,
+        images: (string | null | undefined)[] | string | undefined = undefined,
+        signal?: AbortSignal
+    ): Promise<string> {
+        const { provider, requestParams } = prepareParams(prompt, images);
+        return provider.streamAI({
+            ...requestParams,
+            onChunk,
+            signal
         });
     }
 
     return {
-        requestAI
+        requestAI,
+        streamAI
     }
 }
 

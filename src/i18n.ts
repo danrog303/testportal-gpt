@@ -56,11 +56,19 @@ type TranslationKeys = {
     fileProviderMismatchWarning: string;
     fileExpiredWarning: string;
 
-    // Auto-solve buttons
+    // Auto-solve and AI Help buttons
     autoSolve: string;
     solving: string;
     downloadingImage: string;
     apiError: string;
+    aiHelp: string;
+    aiHelpTitle: string;
+    aiHelpThinking: string;
+    aiHelpStop: string;
+    copy: string;
+    copied: string;
+    close: string;
+    retry: string;
 
     // Error messages
     errorApiKeyNotSet: string;
@@ -75,7 +83,7 @@ const translations: Record<Locale, TranslationKeys> = {
     en: {
         // Popup
         title: "AntiTestportal GPT",
-        welcome: "Welcome to AntiTestportal GPT. When you enter any test (on Testportal or Moodle), you should see \"Auto-solve\" button at the bottom of the question. Click it to let the plugin generate an answer for you.",
+        welcome: "Welcome to AntiTestportal GPT. When you enter any test (on Testportal or Moodle), you should see \"Auto-solve\" and \"AI Help\" buttons at the bottom of the question. Click \"Auto-solve\" to let the plugin solve and mark the question, or \"AI Help\" to see a detailed explanation.",
         supportPrompt: "If you like the extension, please consider supporting me by buying me a virtual coffee on",
         supportPromptOr: "or via",
         providerLabel: "AI provider:",
@@ -103,12 +111,12 @@ const translations: Record<Locale, TranslationKeys> = {
         antiTamperingLabel: "Block \"honest respondent\" feature:",
         antiTamperingDescription: "Testportal has a mechanism that detects when you leave the page. When you enable this option, the plugin will try to prevent this feature from working.",
         enable: "Enable",
-        visibilityLabel: "Auto-solve button visibility:",
-        visibilityDescription: "When set to \"Barely visible\", auto-solve button will be given 95% transparency so that it does not attract attention. You can also hide the button completely by setting this option to \"Invisible\".",
+        visibilityLabel: "Exam buttons visibility:",
+        visibilityDescription: "When set to \"Barely visible\", exam buttons (Auto-solve and AI Help) will be given 95% transparency so that they do not attract attention. You can also hide the buttons completely by setting this option to \"Invisible\".",
         visibilityVisible: "Visible",
         visibilityBarelyVisible: "Barely visible",
         visibilityInvisible: "Invisible",
-        visibilityWarning: "Warning: Now auto-solve button will be completely invisible! You can still click it, but it won't be visible. If you don't know where the button normally is, it is recommended to switch this option to \"Barely visible\" or \"visible\".",
+        visibilityWarning: "Warning: Exam buttons will now be completely invisible! You can still click them, but they won't be visible. If you don't know where the buttons normally are, it is recommended to switch this option to \"Barely visible\" or \"Visible\".",
 
         // Context Manager
         contextLabel: "Context management:",
@@ -128,11 +136,19 @@ const translations: Record<Locale, TranslationKeys> = {
         fileProviderMismatchWarning: "This file was uploaded to a different AI provider and will not be used with the current one.",
         fileExpiredWarning: "This file has expired on the provider's servers. Please remove and re-upload it.",
 
-        // Auto-solve buttons
+        // Auto-solve and AI Help buttons
         autoSolve: "Auto-solve question",
         solving: "Solving...",
         downloadingImage: "Downloading image...",
         apiError: "Some error happened during the API communication...",
+        aiHelp: "AI Help",
+        aiHelpTitle: "AI Explanation & Reasoning",
+        aiHelpThinking: "Thinking & Analyzing...",
+        aiHelpStop: "Stop",
+        copy: "Copy",
+        copied: "Copied!",
+        close: "Close",
+        retry: "Retry",
 
         // Error messages
         errorApiKeyNotSet: "API key is not set in AntiTestportal GPT plugin configuration.",
@@ -142,7 +158,7 @@ const translations: Record<Locale, TranslationKeys> = {
     pl: {
         // Popup
         title: "AntiTestportal GPT",
-        welcome: "Witaj w AntiTestportal GPT. Po wejściu na dowolny test (na stronie Testportal lub Moodle), powinieneś zobaczyć przycisk \"Rozwiąż automatycznie\" na dole pytania. Kliknij go, aby wtyczka wygenerowała odpowiedź.",
+        welcome: "Witaj w AntiTestportal GPT. Po wejściu na dowolny test (na stronie Testportal lub Moodle), powinieneś zobaczyć przyciski \"Rozwiąż automatycznie\" oraz \"Pomoc AI\" na dole pytania. Kliknij \"Rozwiąż automatycznie\", aby wtyczka zaznaczyła odpowiedź, lub \"Pomoc AI\", aby zobaczyć szczegółowe wyjaśnienie.",
         supportPrompt: "Jeśli podoba Ci się rozszerzenie, rozważ wsparcie mnie poprzez zakup wirtualnej kawy na",
         supportPromptOr: "lub poprzez",
         providerLabel: "Dostawca AI:",
@@ -170,12 +186,12 @@ const translations: Record<Locale, TranslationKeys> = {
         antiTamperingLabel: "Zablokuj funkcję \"uczciwy rozwiązujący\":",
         antiTamperingDescription: "Testportal posiada mechanizm wykrywający opuszczenie strony. Po włączeniu tej opcji, wtyczka spróbuje zablokować działanie tej funkcji.",
         enable: "Włącz",
-        visibilityLabel: "Widoczność przycisku auto-rozwiązywania:",
-        visibilityDescription: "Przy ustawieniu \"Ledwo widoczny\", przycisk auto-rozwiązywania będzie miał 95% przezroczystość, aby nie przyciągał uwagi. Możesz też całkowicie ukryć przycisk ustawiając opcję \"Niewidoczny\".",
+        visibilityLabel: "Widoczność przycisków na egzaminie:",
+        visibilityDescription: "Przy ustawieniu \"Ledwo widoczny\", przyciski na egzaminie (auto-rozwiązywanie i pomoc AI) będą miały 95% przezroczystość, aby nie przyciągały uwagi. Możesz też całkowicie ukryć przyciski ustawiając opcję \"Niewidoczny\".",
         visibilityVisible: "Widoczny",
         visibilityBarelyVisible: "Ledwo widoczny",
         visibilityInvisible: "Niewidoczny",
-        visibilityWarning: "Uwaga: Przycisk auto-rozwiązywania będzie teraz całkowicie niewidoczny! Nadal możesz go kliknąć, ale nie będzie widoczny. Jeśli nie wiesz, gdzie normalnie znajduje się przycisk, zaleca się zmianę tej opcji na \"Ledwo widoczny\" lub \"Widoczny\".",
+        visibilityWarning: "Uwaga: Przyciski na egzaminie będą teraz całkowicie niewidoczne! Nadal możesz w nie kliknąć, ale nie będą widoczne. Jeśli nie wiesz, gdzie normalnie znajdują się przyciski, zaleca się zmianę tej opcji na \"Ledwo widoczny\" lub \"Widoczny\".",
 
         // Context Manager
         contextLabel: "Zarządzanie kontekstem:",
@@ -195,11 +211,19 @@ const translations: Record<Locale, TranslationKeys> = {
         fileProviderMismatchWarning: "Ten plik został przesłany do innego dostawcy AI i nie będzie używany z obecnym.",
         fileExpiredWarning: "Ten plik wygasł na serwerach dostawcy. Proszę go usunąć i przesłać ponownie.",
 
-        // Auto-solve buttons
+        // Auto-solve and AI Help buttons
         autoSolve: "Rozwiąż automatycznie",
         solving: "Rozwiązywanie...",
         downloadingImage: "Pobieranie obrazu...",
         apiError: "Wystąpił błąd podczas komunikacji z API...",
+        aiHelp: "Pomoc AI",
+        aiHelpTitle: "Wyjaśnienie i uzasadnienie AI",
+        aiHelpThinking: "Analizowanie pytania...",
+        aiHelpStop: "Zatrzymaj",
+        copy: "Kopiuj",
+        copied: "Skopiowano!",
+        close: "Zamknij",
+        retry: "Ponów próbę",
 
         // Error messages
         errorApiKeyNotSet: "Klucz API nie jest ustawiony w konfiguracji wtyczki AntiTestportal GPT.",

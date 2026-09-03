@@ -4,6 +4,9 @@ export interface AIProvider {
     /** Send a prompt (with optional images and file context) and get a text response */
     requestAI(params: AIRequestParams): Promise<string>;
 
+    /** Stream a prompt response in real-time, calling onChunk on each received piece */
+    streamAI(params: AIStreamRequestParams): Promise<string>;
+
     /** Fetch available models from the provider's API */
     listModels(apiKey: string): Promise<AIModel[]>;
 
@@ -30,6 +33,13 @@ export interface AIRequestParams {
     fileRefs?: ProviderFileRef[];
     /** Provider-specific context ID (e.g. OpenAI vector store ID) */
     fileContextId?: string;
+}
+
+export interface AIStreamRequestParams extends AIRequestParams {
+    /** Callback invoked whenever a new text chunk is received */
+    onChunk: (chunk: string) => void;
+    /** Optional AbortSignal to cancel the streaming request */
+    signal?: AbortSignal;
 }
 
 export interface AIModel {

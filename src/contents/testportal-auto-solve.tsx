@@ -1,11 +1,13 @@
 import type { PlasmoCSConfig } from "plasmo";
-import React, { useState, type CSSProperties, type MouseEvent } from "react";
+import React, { useState, useRef, type CSSProperties, type MouseEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { toast, ToastContainer } from "react-toastify";
 
 import usePluginConfig, { AutoSolveButtonVisibility } from "~hooks/use-plugin-config";
 import useQuestionSolver from "~hooks/use-question-solver";
 import type { Answer, ClosedQuestionAnswer, OpenQuestionAnswer, Question, QuestionType } from "~models/questions";
+import { getBase64ImageFromUrl } from "~utils/image";
+import { AiHelpModal } from "~components/AiHelpModal";
 import { t } from "~i18n";
 
 export const config: PlasmoCSConfig = {
@@ -21,44 +23,25 @@ export const config: PlasmoCSConfig = {
     all_frames: true
 };
 
-// Reload the page when the plugin configuration changes.
-// chrome.runtime.onMessage.addListener((message) => {
-//     if (message.name === MSG_GLOBAL_STATE_CHANGE) {
-//         console.log("TestportalGPT content script received a message:", message);
-//         window.location.reload();
-//     }
-// });
-
 const TestportalAutoSolve = () => {
     const [isLoading, setLoading] = useState(false);
-    const { generateAnswer } = useQuestionSolver();
+    const [isDownloadingImg, setDownloadingImg] = useState(false);
+    const { generateAnswer, explainQuestion } = useQuestionSolver();
     const { pluginConfig } = usePluginConfig();
 
-    const [isDownloadingImg, setDownloadingImg] = useState(false);
+    const [isHelpOpen, setHelpOpen] = useState(false);
+    const [isHelpStreaming, setHelpStreaming] = useState(false);
+    const [streamedExplanation, setStreamedExplanation] = useState("");
+    const [helpError, setHelpError] = useState<string | null>(null);
+    const [cachedQuestion, setCachedQuestion] = useState<Question | null>(null);
+    const helpAbortControllerRef = useRef<AbortController | null>(null);
 
-    async function getBase64ImageFromUrl(imageUrl: string) {
+    async function fetchImageBase64(url: string) {
         setDownloadingImg(true);
         try {
-            const response = await Promise.race([
-                chrome.runtime.sendMessage({
-                    type: "FETCH_IMAGE",
-                    url: imageUrl
-                }),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Timeout: The extension background service worker did not respond. Try refreshing the page.")), 15000)
-                )
-            ]) as any;
+            return await getBase64ImageFromUrl(url);
+        } finally {
             setDownloadingImg(false);
-            if (response && response.success) {
-                return response.data;
-            } else {
-                console.error("Failed to fetch image via background script:", response?.error);
-                throw new Error(response?.error || "Unknown error fetching image");
-            }
-        } catch (e) {
-            setDownloadingImg(false);
-            console.error("Error sending message to background script:", e);
-            throw e;
         }
     }
 
@@ -92,7 +75,7 @@ const TestportalAutoSolve = () => {
         let questionImgUrl = getImageAttachmentUrl();
         let questionImgB64 = null;
         if (questionImgUrl) {
-            questionImgB64 = await getBase64ImageFromUrl(questionImgUrl);
+            questionImgB64 = await fetchImageBase64(questionImgUrl);
         }
 
         if (questionType === "openLong" || questionType === "openShort") {
@@ -110,7 +93,7 @@ const TestportalAutoSolve = () => {
                 possibleAnswers: answerElementsArray.map((elem: HTMLElement) => elem.innerText),
                 possibleAnswersImages: await Promise.all(answerElementsArray.map(async (elem: HTMLElement) => {
                     const img = elem.querySelector("img");
-                    return img ? await getBase64ImageFromUrl(img.src) : null;
+                    return img ? await fetchImageBase64(img.src) : null;
                 })),
                 imageAttachmentUrl: questionImgB64
             }
@@ -157,6 +140,63 @@ const TestportalAutoSolve = () => {
         }
     }
 
+    const [activeHelpInfo, setActiveHelpInfo] = useState<{ provider: string; model: string } | null>(null);
+
+    async function startAiHelp(questionToExplain?: Question) {
+        setHelpOpen(true);
+        setHelpStreaming(true);
+        setStreamedExplanation("");
+        setHelpError(null);
+
+        const providerDisplayName = pluginConfig.provider === "claude" ? "Anthropic Claude" : pluginConfig.provider === "gemini" ? "Google Gemini" : "OpenAI";
+        setActiveHelpInfo({
+            provider: providerDisplayName,
+            model: pluginConfig.apiModel
+        });
+
+        const abortController = new AbortController();
+        helpAbortControllerRef.current = abortController;
+
+        try {
+            const question = questionToExplain || (await parseCurrentQuestion());
+            setCachedQuestion(question);
+
+            await explainQuestion(
+                question,
+                chunk => {
+                    setStreamedExplanation(prev => prev + chunk);
+                },
+                abortController.signal
+            );
+        } catch (error: any) {
+            if (abortController.signal.aborted) {
+                return;
+            }
+            console.error("AI Help error:", error);
+            setHelpError(error?.message ?? t("apiError"));
+        } finally {
+            setHelpStreaming(false);
+        }
+    }
+
+    function handleAiHelpClick(event: MouseEvent) {
+        event.preventDefault();
+        startAiHelp();
+    }
+
+    function handleStopStreaming() {
+        if (helpAbortControllerRef.current) {
+            helpAbortControllerRef.current.abort();
+            helpAbortControllerRef.current = null;
+        }
+        setHelpStreaming(false);
+    }
+
+    function handleCloseModal() {
+        handleStopStreaming();
+        setHelpOpen(false);
+    }
+
     let stealthStyle: CSSProperties = {};
     if (pluginConfig.btnVisibility === AutoSolveButtonVisibility.BARELY_VISIBLE) {
         stealthStyle = { opacity: 0.05 };
@@ -165,13 +205,35 @@ const TestportalAutoSolve = () => {
     }
 
     return <>
-        <button style={stealthStyle}
-            className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
-            disabled={isLoading || isDownloadingImg}>
-            <span style={{ fontWeight: "normal" }}>
-                {isDownloadingImg ? t("downloadingImage") : (isLoading ? t("solving") : t("autoSolve"))}
-            </span>
-        </button>
+        <span style={{ display: "inline-flex", gap: "8px", alignItems: "center", margin: "4px 8px" }}>
+            <button style={stealthStyle}
+                className={"mdc-button mdc-button--outlined"} onClick={autoSolveCurrentQuestion}
+                disabled={isLoading || isDownloadingImg || isHelpStreaming}>
+                <span style={{ fontWeight: "normal" }}>
+                    {isDownloadingImg ? t("downloadingImage") : (isLoading ? t("solving") : t("autoSolve"))}
+                </span>
+            </button>
+
+            <button style={stealthStyle}
+                className={"mdc-button mdc-button--outlined"} onClick={handleAiHelpClick}
+                disabled={isLoading || isDownloadingImg || isHelpStreaming}>
+                <span style={{ fontWeight: "normal" }}>
+                    {t("aiHelp")}
+                </span>
+            </button>
+        </span>
+
+        <AiHelpModal
+            isOpen={isHelpOpen}
+            onClose={handleCloseModal}
+            onStop={handleStopStreaming}
+            onRetry={() => cachedQuestion && startAiHelp(cachedQuestion)}
+            isStreaming={isHelpStreaming}
+            streamedText={streamedExplanation}
+            error={helpError}
+            providerName={activeHelpInfo?.provider}
+            modelName={activeHelpInfo?.model}
+        />
 
         <ToastContainer />
     </>;

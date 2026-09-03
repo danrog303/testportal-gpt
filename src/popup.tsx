@@ -51,6 +51,7 @@ function IndexPopup() {
     const [keyValidationResponse, setKeyValidationResponse] = useState<string>("");
 
     useEffect(() => {
+        if (modelsLoading) return;
         if (models.length > 0) {
             const isCurrentModelValid = pluginConfig.apiModel && models.some(m => m.id === pluginConfig.apiModel);
             
@@ -60,7 +61,7 @@ function IndexPopup() {
                 
                 if (providerInstance.getDefaultModelId) {
                     const suggested = providerInstance.getDefaultModelId(models);
-                    if (suggested) {
+                    if (suggested && models.some(m => m.id === suggested)) {
                         defaultId = suggested;
                     }
                 }
@@ -68,7 +69,7 @@ function IndexPopup() {
                 pluginConfig.setApiModel(defaultId);
             }
         }
-    }, [models, pluginConfig.apiModel, pluginConfig.provider]);
+    }, [models, modelsLoading, pluginConfig.apiModel, pluginConfig.provider]);
 
     async function onTestApiKey() {
         let modelToUse = pluginConfig.apiModel;
@@ -121,7 +122,6 @@ function IndexPopup() {
 
     function handleProviderChange(newProvider: ProviderType) {
         pluginConfig.setProvider(newProvider);
-        pluginConfig.setApiModel("");
         setKeyValid(null);
         setKeyValidationResponse("");
     }
@@ -223,12 +223,11 @@ function IndexPopup() {
                 {t("modelError")} {modelsError}
             </p>}
             
-            {pluginConfig.apiKey && !modelsError && (
+            {pluginConfig.apiKey && !modelsError && !modelsLoading && (
                 <select
                     id="modelSelect"
                     value={pluginConfig.apiModel}
                     onChange={e => pluginConfig.setApiModel(e.target.value)}
-                    disabled={modelsLoading}
                 >
                     {models.length === 0 && pluginConfig.apiModel && (
                         <option value={pluginConfig.apiModel}>{pluginConfig.apiModel}</option>

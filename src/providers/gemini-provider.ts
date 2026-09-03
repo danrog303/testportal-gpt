@@ -1,7 +1,9 @@
-import { AIProvider, AIRequestParams, AIModel, UploadedFileResult, ProviderFileRef } from "./ai-provider";
+import { AIProvider, AIRequestParams, AIStreamRequestParams, AIModel, UploadedFileResult, ProviderFileRef } from "./ai-provider";
+import { readSSEStream } from "~utils/sse";
+import { t } from "~i18n";
 
 export class GeminiProvider implements AIProvider {
-    async requestAI(params: AIRequestParams): Promise<string> {
+    private buildRequestBody(params: AIRequestParams, stream = false): any {
         const input: any[] = [];
         
         let finalPrompt = params.prompt;
@@ -55,6 +57,39 @@ export class GeminiProvider implements AIProvider {
             input: input
         };
 
+        if (stream) {
+            body.stream = true;
+        }
+
+        return body;
+    }
+
+    private handleErrorResponse(status: number, data: any): never {
+        const rawMessage = data.error?.message || "";
+        const lower = rawMessage.toLowerCase();
+        
+        if (status === 429 || lower.includes("quota exceeded") || lower.includes("rate limit") || lower.includes("resource_exhausted")) {
+            let niceMessage = t("errorGeminiQuota");
+            
+            const retryMatch = rawMessage.match(/retry in ([\d\.]+)s/i);
+            if (retryMatch) {
+                const seconds = Math.ceil(parseFloat(retryMatch[1]));
+                niceMessage += " " + t("errorGeminiRetry").replace("{0}", seconds.toString());
+            }
+            
+            if (lower.includes("free_tier") || lower.includes("billing")) {
+                niceMessage += " " + t("errorGeminiBilling");
+            }
+            
+            throw new Error(niceMessage);
+        }
+
+        throw new Error(rawMessage || `Error generating content from Gemini (Status: ${status})`);
+    }
+
+    async requestAI(params: AIRequestParams): Promise<string> {
+        const body = this.buildRequestBody(params, false);
+
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
             method: "POST",
             headers: {
@@ -67,25 +102,7 @@ export class GeminiProvider implements AIProvider {
         const data = await response.json();
 
         if (!response.ok) {
-            const rawMessage = data.error?.message || "";
-            
-            if (response.status === 429 || rawMessage.toLowerCase().includes("quota exceeded") || rawMessage.toLowerCase().includes("rate limit")) {
-                let niceMessage = "Gemini API quota exceeded or rate limit reached.";
-                
-                const retryMatch = rawMessage.match(/retry in ([\d\.]+)s/i);
-                if (retryMatch) {
-                    const seconds = Math.ceil(parseFloat(retryMatch[1]));
-                    niceMessage += ` Please retry in ${seconds} seconds.`;
-                }
-                
-                if (rawMessage.toLowerCase().includes("free_tier") || rawMessage.toLowerCase().includes("billing")) {
-                    niceMessage += " (Pro models often require a paid billing account on Google AI Studio).";
-                }
-                
-                throw new Error(niceMessage);
-            }
-
-            throw new Error(rawMessage || "Error generating content from Gemini");
+            this.handleErrorResponse(response.status, data);
         }
 
         if (data.output_text) {
@@ -109,6 +126,78 @@ export class GeminiProvider implements AIProvider {
         }
 
         return "";
+    }
+
+    async streamAI(params: AIStreamRequestParams): Promise<string> {
+        const { apiKey, onChunk, signal } = params;
+        const body = this.buildRequestBody(params, true);
+
+        let response: Response;
+        try {
+            response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+                method: "POST",
+                headers: {
+                    "x-goog-api-key": apiKey,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body),
+                signal
+            });
+        } catch (error: any) {
+            if (signal?.aborted) {
+                return "";
+            }
+            throw new Error(`Failed to fetch from Gemini API: ${error.message}`);
+        }
+
+        if (!response.ok) {
+            let data: any = {};
+            try {
+                data = await response.json();
+            } catch {
+                // Ignore parse error
+            }
+            this.handleErrorResponse(response.status, data);
+        }
+
+        let accumulatedText = "";
+
+        await readSSEStream(
+            response,
+            msg => {
+                const { event, data } = msg;
+                if (!data) return;
+
+                if (event === "error" || data.error) {
+                    this.handleErrorResponse(data.error?.code || 429, data);
+                }
+
+                let deltaText = "";
+                if (data.delta) {
+                    if (typeof data.delta.text === "string") {
+                        deltaText = data.delta.text;
+                    } else if (typeof data.delta.thought === "string") {
+                        deltaText = data.delta.thought;
+                    }
+                } else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    deltaText = data.candidates[0].content.parts[0].text;
+                } else if (typeof data.text === "string") {
+                    deltaText = data.text;
+                }
+
+                if (deltaText) {
+                    accumulatedText += deltaText;
+                    onChunk(deltaText);
+                }
+            },
+            signal
+        );
+
+        if (!accumulatedText && !signal?.aborted) {
+            throw new Error("No response content was received from Gemini.");
+        }
+
+        return accumulatedText.trim();
     }
 
     async listModels(apiKey: string): Promise<AIModel[]> {
@@ -149,18 +238,18 @@ export class GeminiProvider implements AIProvider {
     }
 
     getDefaultModelId(models: AIModel[]): string | undefined {
-        const flashModels = models.filter(m => m.id.toLowerCase().includes("flash"));
-        if (flashModels.length === 0) return undefined;
+        const flashModels = models.filter(m => m.id.toLowerCase().includes("flash") && !m.id.toLowerCase().includes("8b"));
+        const candidateModels = flashModels.length > 0 ? flashModels : models;
 
-        flashModels.sort((a, b) => {
+        candidateModels.sort((a, b) => {
             const getVersion = (id: string) => {
-                const match = id.match(/(\d+(\.\d+)?)/);
+                const match = id.toLowerCase().match(/gemini-(\d+(?:\.\d+)?)/);
                 return match ? parseFloat(match[1]) : 0;
             };
             return getVersion(b.id) - getVersion(a.id);
         });
 
-        return flashModels[0].id;
+        return candidateModels[0]?.id;
     }
 
     async uploadFile(apiKey: string, file: File, contextName: string): Promise<UploadedFileResult> {

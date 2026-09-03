@@ -11,24 +11,36 @@ export default function useModels() {
     const [error, setError] = useState<string | null>(null);
 
     async function fetchModels() {
-        if (!pluginConfig.apiKey?.trim()) {
+        const currentProvider = pluginConfig.provider || "openai";
+        const currentKey = pluginConfig.apiKey?.trim();
+
+        if (!currentKey) {
             setModels([]);
             setError(null);
+            setIsLoading(false);
             return;
         }
 
         setIsLoading(true);
         setError(null);
+        setModels([]);
 
         try {
-            const provider = getProvider(pluginConfig.provider || "openai");
-            const fetchedModels = await provider.listModels(pluginConfig.apiKey.trim());
-            setModels(fetchedModels);
+            const provider = getProvider(currentProvider);
+            const fetchedModels = await provider.listModels(currentKey);
+            // Verify that provider hasn't changed during fetch
+            if (pluginConfig.provider === currentProvider) {
+                setModels(fetchedModels);
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to fetch models");
-            setModels([]);
+            if (pluginConfig.provider === currentProvider) {
+                setError(err instanceof Error ? err.message : "Failed to fetch models");
+                setModels([]);
+            }
         } finally {
-            setIsLoading(false);
+            if (pluginConfig.provider === currentProvider) {
+                setIsLoading(false);
+            }
         }
     }
 

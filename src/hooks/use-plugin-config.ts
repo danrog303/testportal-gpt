@@ -22,6 +22,9 @@ export interface PluginConfig {
     geminiApiKey: string;
     claudeApiKey: string;
     claudeWorkspaceId: string;
+    openaiModel: string;
+    geminiModel: string;
+    claudeModel: string;
     apiModel: string;
     antiAntiTampering: boolean;
     btnVisibility: AutoSolveButtonVisibility;
@@ -33,6 +36,9 @@ const DefaultConfig: PluginConfig = {
     geminiApiKey: "",
     claudeApiKey: "",
     claudeWorkspaceId: "",
+    openaiModel: "gpt-5.2",
+    geminiModel: "",
+    claudeModel: "",
     apiModel: "gpt-5.2",
     antiAntiTampering: true,
     btnVisibility: AutoSolveButtonVisibility.VISIBLE
@@ -48,6 +54,16 @@ function getApiKeyForProvider(config: PluginConfig): string {
     }
 }
 
+function getModelForProvider(config: PluginConfig): string {
+    const provider = config?.provider || "openai";
+    switch (provider) {
+        case "openai": return config?.openaiModel || (config?.apiModel && !config.apiModel.includes("gemini") && !config.apiModel.includes("claude") ? config.apiModel : "gpt-5.2");
+        case "gemini": return config?.geminiModel || (config?.apiModel && config.apiModel.includes("gemini") ? config.apiModel : "");
+        case "claude": return config?.claudeModel || (config?.apiModel && config.apiModel.includes("claude") ? config.apiModel : "");
+        default: return config?.apiModel || "";
+    }
+}
+
 export default function usePluginConfig() {
     const [rawConfig, setConfig] = useGlobalSyncedState<PluginConfig>(PluginConfigKey, DefaultConfig);
 
@@ -59,12 +75,28 @@ export default function usePluginConfig() {
         geminiApiKey: rawConfig?.geminiApiKey ?? "",
         claudeApiKey: rawConfig?.claudeApiKey ?? "",
         claudeWorkspaceId: rawConfig?.claudeWorkspaceId ?? "",
+        openaiModel: rawConfig?.openaiModel ?? (rawConfig?.provider === "openai" ? rawConfig?.apiModel : "") ?? "gpt-5.2",
+        geminiModel: rawConfig?.geminiModel ?? (rawConfig?.provider === "gemini" ? rawConfig?.apiModel : "") ?? "",
+        claudeModel: rawConfig?.claudeModel ?? (rawConfig?.provider === "claude" ? rawConfig?.apiModel : "") ?? "",
     };
+
+    const activeModel = getModelForProvider(config);
 
     return {
         pluginConfig: {
             provider: config.provider,
-            setProvider: (val: ProviderType) => setConfig(prev => ({ ...DefaultConfig, ...prev, provider: val })),
+            setProvider: (val: ProviderType) => setConfig(prev => {
+                const current = { ...DefaultConfig, ...prev };
+                let targetModel = "";
+                if (val === "openai") targetModel = current.openaiModel || "gpt-5.2";
+                else if (val === "gemini") targetModel = current.geminiModel || "";
+                else if (val === "claude") targetModel = current.claudeModel || "";
+                return {
+                    ...current,
+                    provider: val,
+                    apiModel: targetModel
+                };
+            }),
             apiKey: getApiKeyForProvider(config),
             setApiKey: (val: string) => {
                 setConfig(prev => {
@@ -83,8 +115,19 @@ export default function usePluginConfig() {
             openaiApiKey: config.openaiApiKey,
             geminiApiKey: config.geminiApiKey,
             claudeApiKey: config.claudeApiKey,
-            apiModel: config.apiModel,
-            setApiModel: (val: string) => setConfig(prev => ({ ...DefaultConfig, ...prev, apiModel: val })),
+            apiModel: activeModel,
+            setApiModel: (val: string) => setConfig(prev => {
+                const current = { ...DefaultConfig, ...prev };
+                const provider = current.provider || "openai";
+                if (provider === "openai") {
+                    return { ...current, openaiModel: val, apiModel: val };
+                } else if (provider === "gemini") {
+                    return { ...current, geminiModel: val, apiModel: val };
+                } else if (provider === "claude") {
+                    return { ...current, claudeModel: val, apiModel: val };
+                }
+                return { ...current, apiModel: val };
+            }),
             antiAntiTampering: config.antiAntiTampering,
             setAntiAntiTampering: (val: boolean) => setConfig(prev => ({ ...DefaultConfig, ...prev, antiAntiTampering: val })),
             btnVisibility: config.btnVisibility,

@@ -1,8 +1,19 @@
-import type { Answer, ClosedQuestion, Question } from "~models/questions"
-import useAI from "~hooks/use-ai"
+import type { Answer, ClosedQuestion, Question } from "~models/questions";
+import useAI from "~hooks/use-ai";
 
 function useQuestionSolver() {
-    const { requestAI } = useAI();
+    const { requestAI, streamAI } = useAI();
+
+    function extractImages(question: Question): (string | null | undefined)[] {
+        const images: (string | null | undefined)[] = [question.imageAttachmentUrl];
+        if (question.answerType === "singleChoice" || question.answerType === "multipleChoices") {
+            const closedQuestion = question as ClosedQuestion;
+            if (closedQuestion.possibleAnswersImages) {
+                images.push(...closedQuestion.possibleAnswersImages);
+            }
+        }
+        return images;
+    }
 
     function generatePrompt(question: Question): string {
         const lines: string[] = [];
@@ -13,12 +24,13 @@ function useQuestionSolver() {
 
         if (answerType === "long" || answerType === "short") {
             lines.push("Your answer must be written in the same language in which the question was asked.");
+            lines.push("IMPORTANT: Output pure, plain cleartext ONLY. Do NOT use any Markdown formatting, asterisks for bold or italic (** or *), backticks (`), hashes for headings (#), bullet points, or HTML tags.");
         }
 
         if (answerType === "long") {
-            lines.push("Your answer should be moderately detailed.");
+            lines.push("Your answer should be moderately detailed and written in clear, natural paragraphs without any Markdown.");
         } else if (answerType === "short") {
-            lines.push("Your answer should be as short and concise as possible.");
+            lines.push("Your answer should be as short and concise as possible, returning only the direct text without any Markdown formatting or extra punctuation.");
         }
 
         lines.push(`The question is: ${question.content}`);
@@ -55,21 +67,99 @@ function useQuestionSolver() {
         return lines.join("\n");
     }
 
-    async function generateAnswer(question: Question): Promise<Answer> {
-        const prompt = generatePrompt(question);
+    function generateExplanationPrompt(question: Question): string {
+        const lines: string[] = [];
+        const answerType = question.answerType;
 
-        const images: (string | null | undefined)[] = [question.imageAttachmentUrl];
+        lines.push("You are an expert tutor and educator. Your goal is to help the user understand and solve the question with clear, step-by-step reasoning.");
+        lines.push("Always write your entire response, including all Markdown headings, in the same language in which the question was asked. For example, if the question is in Polish, translate all headings to Polish (e.g. use '### Rekomendowana odpowiedź' instead of '### Recommended Answer', '### Poprawna odpowiedź' instead of '### Correct Answer', and '### Wyjaśnienie i uzasadnienie' instead of '### Explanation & Reasoning').");
+        lines.push(`The question is: ${question.content}`);
+
+        if (answerType === "singleChoice" || answerType === "multipleChoices") {
+            lines.push("Here is the list of possible answers:");
+            (question as ClosedQuestion).possibleAnswers.forEach((choice, index) => {
+                lines.push(`${index + 1}. ${choice}`);
+            });
+            lines.push("");
+            lines.push("Please provide your answer in the following structured Markdown format (translating the headings into the language of the question):");
+            lines.push("### Correct Answer");
+            if (answerType === "singleChoice") {
+                lines.push("Clearly state the correct answer number and its text (e.g. '**Option 2: ...**').");
+            } else {
+                lines.push("Clearly state all correct answer numbers and their texts (e.g. '**Option 1 and Option 3: ...**').");
+            }
+            lines.push("");
+            lines.push("### Step-by-Step Explanation & Reasoning");
+            lines.push("Walk through the fundamental concepts and explain thoroughly why the correct answer is right.");
+            lines.push("");
+            lines.push("### Analysis of Options");
+            lines.push("Briefly review each option and explain why it is correct or incorrect.");
+        } else {
+            lines.push("");
+            lines.push("Please provide your response in the following structured Markdown format (translating the headings into the language of the question):");
+            lines.push("### Recommended Answer");
+            if (answerType === "short") {
+                lines.push("Provide the concise, direct answer to the question.");
+            } else {
+                lines.push("Provide a well-formulated, complete answer to the question.");
+            }
+            lines.push("");
+            lines.push("### Explanation & Reasoning");
+            lines.push("Explain step-by-step how to arrive at this answer, including any relevant formulas, definitions, context, or methodology.");
+        }
+
+        if (question.imageAttachmentUrl) {
+            lines.push("");
+            lines.push("The question has an image attachment. Please refer to the image for additional context.");
+        }
+
         if (question.answerType === "singleChoice" || question.answerType === "multipleChoices") {
             const closedQuestion = question as ClosedQuestion;
-            if (closedQuestion.possibleAnswersImages) {
-                images.push(...closedQuestion.possibleAnswersImages);
+            if (closedQuestion.possibleAnswersImages && closedQuestion.possibleAnswersImages.some(img => img)) {
+                lines.push("Some or all answers have image attachments. The images are sent in the same order as the answers.");
             }
         }
+
+        return lines.join("\n");
+    }
+
+function stripMarkdown(text: string): string {
+    if (!text) return "";
+
+    return text
+        // Remove fenced code blocks ```lang ... ```
+        .replace(/```[\s\S]*?```/g, m => {
+            const lines = m.split("\n");
+            return lines.slice(1, -1).join("\n");
+        })
+        // Remove inline code `code`
+        .replace(/`([^`]+)`/g, "$1")
+        // Remove bold/italic: ***text***, **text**, *text*, ___text___, __text__, _text_
+        .replace(/(\*\*|__)(.*?)\1/g, "$2")
+        .replace(/(\*|_)(.*?)\1/g, "$2")
+        // Remove strikethrough ~~text~~
+        .replace(/~~(.*?)~~/g, "$1")
+        // Remove headers (# Header)
+        .replace(/^#{1,6}\s+(.*)$/gm, "$1")
+        // Remove blockquotes (> quote)
+        .replace(/^>\s+(.*)$/gm, "$1")
+        // Remove links [text](url) -> text
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        // Remove images ![alt](url) -> alt
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+        // Remove bullet markers at beginning of line (- or * or +)
+        .replace(/^[\t ]*[-*+]\s+/gm, "")
+        .trim();
+}
+
+    async function generateAnswer(question: Question): Promise<Answer> {
+        const prompt = generatePrompt(question);
+        const images = extractImages(question);
 
         const response = await requestAI(prompt, images);
         if (question.answerType == "short" || question.answerType == "long") {
             return {
-                content: response.trim()
+                content: stripMarkdown(response)
             }
         } else {
             let processedResponse = response;
@@ -91,8 +181,19 @@ function useQuestionSolver() {
         }
     }
 
+    async function explainQuestion(
+        question: Question,
+        onChunk: (chunk: string) => void,
+        signal?: AbortSignal
+    ): Promise<string> {
+        const prompt = generateExplanationPrompt(question);
+        const images = extractImages(question);
+        return streamAI(prompt, onChunk, images, signal);
+    }
+
     return {
-        generateAnswer
+        generateAnswer,
+        explainQuestion
     }
 }
 
