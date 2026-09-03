@@ -42,16 +42,21 @@
 body {
     background: var(--bg-primary);
     color: var(--text-primary);
+    overflow-x: hidden;
 }
 
 /* Container */
 .popup-container {
     width: 420px;
+    max-width: 420px;
+    box-sizing: border-box;
     padding: 20px;
     background: linear-gradient(145deg, var(--bg-primary), var(--bg-secondary));
     color: var(--text-primary);
     font-size: 12px;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Typography */
@@ -250,6 +255,8 @@ button {
     border-radius: var(--radius-md);
     font-size: 12px;
     font-weight: 500;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .popup-key-validation-in-progress {
@@ -279,6 +286,8 @@ button {
     border-radius: var(--radius-md);
     color: var(--warning);
     font-size: 12px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Context Manager */
@@ -387,6 +396,8 @@ button {
     border-radius: var(--radius-md);
     color: var(--danger);
     font-size: 12px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* File List */

@@ -124,6 +124,10 @@ export class OpenAIProvider implements AIProvider {
 
                 // Exclude specific unwanted types
                 const hasDateSuffix = /\d{4}-\d{2}-\d{2}$/.test(lowerId);
+                const hasUnwantedSuffix = lowerId.endsWith("-chat-latest") ||
+                                          lowerId.endsWith("-instruct") ||
+                                          /-instruct-\d+$/.test(lowerId) ||
+                                          lowerId.endsWith("-search-api");
 
                 const isExcluded = lowerId.includes("gpt-audio") ||
                                    lowerId.includes("omni") ||
@@ -134,7 +138,8 @@ export class OpenAIProvider implements AIProvider {
                                    lowerId.includes("transcribe") ||
                                    lowerId.includes("gpt-image") ||
                                    lowerId.includes("preview") ||
-                                   hasDateSuffix;
+                                   hasDateSuffix ||
+                                   hasUnwantedSuffix;
                                    
                 return !isExcluded;
             })

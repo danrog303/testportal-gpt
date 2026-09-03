@@ -11,7 +11,7 @@ export default function useModels() {
     const [error, setError] = useState<string | null>(null);
 
     async function fetchModels() {
-        if (!pluginConfig.apiKey) {
+        if (!pluginConfig.apiKey?.trim()) {
             setModels([]);
             setError(null);
             return;
@@ -21,8 +21,8 @@ export default function useModels() {
         setError(null);
 
         try {
-            const provider = getProvider(pluginConfig.provider);
-            const fetchedModels = await provider.listModels(pluginConfig.apiKey);
+            const provider = getProvider(pluginConfig.provider || "openai");
+            const fetchedModels = await provider.listModels(pluginConfig.apiKey.trim());
             setModels(fetchedModels);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to fetch models");

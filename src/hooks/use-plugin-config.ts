@@ -39,41 +39,56 @@ const DefaultConfig: PluginConfig = {
 }
 
 function getApiKeyForProvider(config: PluginConfig): string {
-    switch (config.provider) {
-        case "openai": return config.openaiApiKey;
-        case "gemini": return config.geminiApiKey;
-        case "claude": return config.claudeWorkspaceId ? `${config.claudeApiKey}|${config.claudeWorkspaceId}` : config.claudeApiKey;
+    const provider = config?.provider || "openai";
+    switch (provider) {
+        case "openai": return config?.openaiApiKey ?? (config as any)?.apiKey ?? "";
+        case "gemini": return config?.geminiApiKey ?? "";
+        case "claude": return config?.claudeWorkspaceId ? `${config?.claudeApiKey}|${config?.claudeWorkspaceId}` : (config?.claudeApiKey ?? "");
+        default: return (config as any)?.apiKey ?? "";
     }
 }
 
 export default function usePluginConfig() {
-    const [config, setConfig] = useGlobalSyncedState<PluginConfig>(PluginConfigKey, DefaultConfig);
+    const [rawConfig, setConfig] = useGlobalSyncedState<PluginConfig>(PluginConfigKey, DefaultConfig);
+
+    const config: PluginConfig = {
+        ...DefaultConfig,
+        ...rawConfig,
+        provider: rawConfig?.provider || "openai",
+        openaiApiKey: rawConfig?.openaiApiKey ?? (rawConfig as any)?.apiKey ?? "",
+        geminiApiKey: rawConfig?.geminiApiKey ?? "",
+        claudeApiKey: rawConfig?.claudeApiKey ?? "",
+        claudeWorkspaceId: rawConfig?.claudeWorkspaceId ?? "",
+    };
 
     return {
         pluginConfig: {
             provider: config.provider,
-            setProvider: (val: ProviderType) => setConfig(prev => ({ ...prev, provider: val })),
+            setProvider: (val: ProviderType) => setConfig(prev => ({ ...DefaultConfig, ...prev, provider: val })),
             apiKey: getApiKeyForProvider(config),
             setApiKey: (val: string) => {
                 setConfig(prev => {
-                    switch (prev.provider) {
-                        case "openai": return { ...prev, openaiApiKey: val };
-                        case "gemini": return { ...prev, geminiApiKey: val };
-                        case "claude": return { ...prev, claudeApiKey: val };
+                    const current = { ...DefaultConfig, ...prev };
+                    const provider = current.provider || "openai";
+                    switch (provider) {
+                        case "openai": return { ...current, openaiApiKey: val, apiKey: val };
+                        case "gemini": return { ...current, geminiApiKey: val };
+                        case "claude": return { ...current, claudeApiKey: val };
+                        default: return { ...current, openaiApiKey: val, apiKey: val };
                     }
                 })
             },
             claudeWorkspaceId: config.claudeWorkspaceId || "",
-            setClaudeWorkspaceId: (val: string) => setConfig(prev => ({ ...prev, claudeWorkspaceId: val })),
+            setClaudeWorkspaceId: (val: string) => setConfig(prev => ({ ...DefaultConfig, ...prev, claudeWorkspaceId: val })),
             openaiApiKey: config.openaiApiKey,
             geminiApiKey: config.geminiApiKey,
             claudeApiKey: config.claudeApiKey,
             apiModel: config.apiModel,
-            setApiModel: (val: string) => setConfig(prev => ({ ...prev, apiModel: val })),
+            setApiModel: (val: string) => setConfig(prev => ({ ...DefaultConfig, ...prev, apiModel: val })),
             antiAntiTampering: config.antiAntiTampering,
-            setAntiAntiTampering: (val: boolean) => setConfig(prev => ({ ...prev, antiAntiTampering: val })),
+            setAntiAntiTampering: (val: boolean) => setConfig(prev => ({ ...DefaultConfig, ...prev, antiAntiTampering: val })),
             btnVisibility: config.btnVisibility,
-            setBtnVisibility: (val: AutoSolveButtonVisibility) => setConfig(prev => ({ ...prev, btnVisibility: val }))
+            setBtnVisibility: (val: AutoSolveButtonVisibility) => setConfig(prev => ({ ...DefaultConfig, ...prev, btnVisibility: val }))
         }
     }
 }

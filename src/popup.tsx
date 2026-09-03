@@ -41,7 +41,7 @@ function getApiKeyPlaceholder(provider: ProviderType): string {
 function IndexPopup() {
     const { pluginConfig } = usePluginConfig();
     const { requestAI } = useAI();
-    const { models, isLoading: modelsLoading, error: modelsError } = useModels();
+    const { models, isLoading: modelsLoading, error: modelsError, refetch: refetchModels } = useModels();
     const coffeeDonationLink = getLocale() === "pl"
         ? { href: DONATION_LINKS.buycoffee, label: "Buycoffee.to" }
         : { href: DONATION_LINKS.kofi, label: "Ko-fi" };
@@ -95,12 +95,29 @@ function IndexPopup() {
             setKeyValid(true);
             setKeyValidationResponse(response);
             setKeyValidationInProgress(false);
+            if (modelsError) {
+                refetchModels();
+            }
         } catch (error) {
             setKeyValid(false);
             setKeyValidationResponse(error instanceof Error ? error.message : error.toString());
             setKeyValidationInProgress(false);
         }
     }
+
+    const handleApiKeyChange = (val: string) => {
+        pluginConfig.setApiKey(val);
+        if (!val.trim()) {
+            setKeyValid(null);
+            setKeyValidationResponse("");
+        }
+    };
+
+    const currentApiKey = pluginConfig.provider === "claude"
+        ? pluginConfig.claudeApiKey
+        : pluginConfig.provider === "gemini"
+        ? pluginConfig.geminiApiKey
+        : pluginConfig.openaiApiKey;
 
     function handleProviderChange(newProvider: ProviderType) {
         pluginConfig.setProvider(newProvider);
@@ -143,8 +160,19 @@ function IndexPopup() {
                 {t("apiKeyDescription")}
             </p>
 
-            <input type={"text"} defaultValue={pluginConfig.provider === "claude" ? pluginConfig.claudeApiKey : pluginConfig.provider === "gemini" ? pluginConfig.geminiApiKey : pluginConfig.openaiApiKey} onChange={e => pluginConfig.setApiKey(e.target.value)}
-                placeholder={getApiKeyPlaceholder(pluginConfig.provider)} key={pluginConfig.provider + "-apikey"} />
+            <input
+                type={"text"}
+                value={currentApiKey || ""}
+                onChange={e => handleApiKeyChange(e.target.value)}
+                onInput={e => handleApiKeyChange(e.currentTarget.value)}
+                onCut={e => {
+                    const input = e.currentTarget;
+                    setTimeout(() => handleApiKeyChange(input.value), 0);
+                }}
+                onKeyUp={e => handleApiKeyChange(e.currentTarget.value)}
+                placeholder={getApiKeyPlaceholder(pluginConfig.provider)}
+                key={pluginConfig.provider + "-apikey"}
+            />
 
             {pluginConfig.provider === "claude" && (
                 <>
@@ -152,12 +180,18 @@ function IndexPopup() {
                     <p className={"popup-description"}>
                         {t("workspaceIdDescriptionClaude")}
                     </p>
-                    <input type={"text"} defaultValue={pluginConfig.claudeWorkspaceId} onChange={e => pluginConfig.setClaudeWorkspaceId(e.target.value)}
-                        placeholder={"wrkspc_..."} key={"claude-workspace-id"} />
+                    <input
+                        type={"text"}
+                        value={pluginConfig.claudeWorkspaceId || ""}
+                        onChange={e => pluginConfig.setClaudeWorkspaceId(e.target.value)}
+                        onInput={e => pluginConfig.setClaudeWorkspaceId(e.currentTarget.value)}
+                        placeholder={"wrkspc_..."}
+                        key={"claude-workspace-id"}
+                    />
                 </>
             )}
 
-            <button className={"popup-test-key-btn"} onClick={onTestApiKey} disabled={keyValidationInProgress || !pluginConfig.apiKey}>{t("testApiKey")}</button>
+            <button className={"popup-test-key-btn"} onClick={onTestApiKey} disabled={keyValidationInProgress || !pluginConfig.apiKey?.trim()}>{t("testApiKey")}</button>
 
             {keyValidationInProgress && <p className={"popup-key-validation-in-progress"}>
                 {t("validatingKey")}
