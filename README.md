@@ -1,6 +1,9 @@
 # testportal-gpt
 > 🛠️ Auto-solver browser extension for TestPortal powered by ChatGPT.
 
+## 📝 Project discontinued
+TestportalGPT is now a discontinued project. The work was moved to Luzak project (https://luzak.top), which is a next-gen TestPortal GPT version, supporting latest AI models and features.
+
 ## ✨ Project summary
 TestPortal (https://testportal.net) is a popular site that allows users to create tests containing closed-ended and open-ended questions. The **testportal-gpt** project provides a browser plugin that enables automatic exercise solving using artificial intelligence.
 
